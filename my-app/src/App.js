@@ -13,10 +13,6 @@ function App() {
     editorRef.current = editor;
   }
 
-  function showValue() {
-    alert(editorRef.current.getValue());
-  }
-
   function ejecutar() {
     var obj = { 'codigo': editorRef.current.getValue() }
 
@@ -34,7 +30,7 @@ function App() {
         alert("Ocurrio un error, ver la consola")
       })
       .then(response => {
-        alert(response.Mensaje);
+        document.getElementById('consola').textContent = response.Mensaje;
       })
   }
 
@@ -51,7 +47,7 @@ function App() {
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
               <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                  <a class="nav-link active" aria-current="page" onClick={ejecutar} style={{cursor:'pointer'}}>Ejecutar</a>
+                  <a class="nav-link active" aria-current="page" onClick={ejecutar} style={{ cursor: 'pointer' }}>Ejecutar</a>
                 </li>
                 <li class="nav-item dropdown">
                   <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -80,13 +76,13 @@ function App() {
             onMount={handleEditorDidMount}
             className={'rounded-xl'}
             theme="vs-dark"
+            options={{
+              minimap: {
+                enabled: false
+              }
+            }}
           />
-          <Editor
-            height="75vh"
-            width="60vh"
-            theme="vs-dark"
-            options={{ readOnly: true }}
-          />
+          <textarea disabled style={{ width: '60vh', height: '75vh', background: 'black', color: 'white', fontSize: '13px' }} id="consola"></textarea>
         </div>
 
       </header>
@@ -94,6 +90,4 @@ function App() {
   );
 }
 
-const rootElement = document.getElementById("root");
-ReactDOM.render(<App />, rootElement);
 export default App;

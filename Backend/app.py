@@ -2,6 +2,10 @@ from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS
 import json
 
+import gramatica as g
+import ts as TS
+import ejecutar as Ejecutar
+
 app = Flask(__name__)
 CORS(app)
 
@@ -12,8 +16,13 @@ def helloWorld():
 @app.route("/ejecutar",methods=['POST'])
 def ejecutar():
   codigo = request.json['codigo']
+
+  instrucciones = g.parse(codigo)
+  ts_global = TS.TablaDeSimbolos()
+  consola = Ejecutar.procesar_instrucciones(instrucciones, ts_global)
+
   objeto = {
-            'Mensaje': 'Recibido: '+codigo
+            'Mensaje': consola
         }
 
   return jsonify(objeto)

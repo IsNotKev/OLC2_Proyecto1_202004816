@@ -1,0 +1,172 @@
+Created by PLY (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    DECIMAL
+    DIVIDIDO
+    ENTERO
+    ID
+    IGUAL
+    IGUALQUE
+    LLAVDER
+    LLAVIZQ
+    MAS
+    MAYQUE
+    MENOS
+    MENQUE
+    NIGUALQUE
+    POR
+
+Grammar
+
+Rule 0     S' -> inicio
+Rule 1     inicio -> instrucciones
+Rule 2     instrucciones -> instrucciones instruccion
+Rule 3     instrucciones -> instruccion
+Rule 4     instruccion -> imprimir_instr
+Rule 5     imprimir_instr -> PRINTLN ADMIR PARIZQ expresion_cadena PARDER PTCOMA
+Rule 6     expresion_cadena -> CADENA
+
+Terminals, with rules where they appear
+
+ADMIR                : 5
+CADENA               : 6
+DECIMAL              : 
+DIVIDIDO             : 
+ENTERO               : 
+ID                   : 
+IGUAL                : 
+IGUALQUE             : 
+LLAVDER              : 
+LLAVIZQ              : 
+MAS                  : 
+MAYQUE               : 
+MENOS                : 
+MENQUE               : 
+NIGUALQUE            : 
+PARDER               : 5
+PARIZQ               : 5
+POR                  : 
+PRINTLN              : 5
+PTCOMA               : 5
+error                : 
+
+Nonterminals, with rules where they appear
+
+expresion_cadena     : 5
+imprimir_instr       : 4
+inicio               : 0
+instruccion          : 2 3
+instrucciones        : 1 2
+
+
+state 0
+
+    (0) S' -> . inicio
+    (1) inicio -> . instrucciones
+    (2) instrucciones -> . instrucciones instruccion
+    (3) instrucciones -> . instruccion
+    (4) instruccion -> . imprimir_instr
+    (5) imprimir_instr -> . PRINTLN ADMIR PARIZQ expresion_cadena PARDER PTCOMA
+
+    PRINTLN         shift and go to state 5
+
+    inicio                         shift and go to state 1
+    instrucciones                  shift and go to state 2
+    instruccion                    shift and go to state 3
+    imprimir_instr                 shift and go to state 4
+
+state 1
+
+    (0) S' -> inicio .
+
+
+
+state 2
+
+    (1) inicio -> instrucciones .
+    (2) instrucciones -> instrucciones . instruccion
+    (4) instruccion -> . imprimir_instr
+    (5) imprimir_instr -> . PRINTLN ADMIR PARIZQ expresion_cadena PARDER PTCOMA
+
+    $end            reduce using rule 1 (inicio -> instrucciones .)
+    PRINTLN         shift and go to state 5
+
+    instruccion                    shift and go to state 6
+    imprimir_instr                 shift and go to state 4
+
+state 3
+
+    (3) instrucciones -> instruccion .
+
+    PRINTLN         reduce using rule 3 (instrucciones -> instruccion .)
+    $end            reduce using rule 3 (instrucciones -> instruccion .)
+
+
+state 4
+
+    (4) instruccion -> imprimir_instr .
+
+    PRINTLN         reduce using rule 4 (instruccion -> imprimir_instr .)
+    $end            reduce using rule 4 (instruccion -> imprimir_instr .)
+
+
+state 5
+
+    (5) imprimir_instr -> PRINTLN . ADMIR PARIZQ expresion_cadena PARDER PTCOMA
+
+    ADMIR           shift and go to state 7
+
+
+state 6
+
+    (2) instrucciones -> instrucciones instruccion .
+
+    PRINTLN         reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    $end            reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+
+
+state 7
+
+    (5) imprimir_instr -> PRINTLN ADMIR . PARIZQ expresion_cadena PARDER PTCOMA
+
+    PARIZQ          shift and go to state 8
+
+
+state 8
+
+    (5) imprimir_instr -> PRINTLN ADMIR PARIZQ . expresion_cadena PARDER PTCOMA
+    (6) expresion_cadena -> . CADENA
+
+    CADENA          shift and go to state 10
+
+    expresion_cadena               shift and go to state 9
+
+state 9
+
+    (5) imprimir_instr -> PRINTLN ADMIR PARIZQ expresion_cadena . PARDER PTCOMA
+
+    PARDER          shift and go to state 11
+
+
+state 10
+
+    (6) expresion_cadena -> CADENA .
+
+    PARDER          reduce using rule 6 (expresion_cadena -> CADENA .)
+
+
+state 11
+
+    (5) imprimir_instr -> PRINTLN ADMIR PARIZQ expresion_cadena PARDER . PTCOMA
+
+    PTCOMA          shift and go to state 12
+
+
+state 12
+
+    (5) imprimir_instr -> PRINTLN ADMIR PARIZQ expresion_cadena PARDER PTCOMA .
+
+    PRINTLN         reduce using rule 5 (imprimir_instr -> PRINTLN ADMIR PARIZQ expresion_cadena PARDER PTCOMA .)
+    $end            reduce using rule 5 (imprimir_instr -> PRINTLN ADMIR PARIZQ expresion_cadena PARDER PTCOMA .)
+
