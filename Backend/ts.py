@@ -12,11 +12,20 @@ class Simbolo() :
         self.tipo = tipo
         self.valor = valor
 
+class Funcion():
+    def __init__(self, id, parametros, instrucciones, tipo_dato):
+        self.id = id
+        self.parametros = parametros
+        self.instrucciones = instrucciones
+        self.tipo_dato = tipo_dato
+        
+
 class TablaDeSimbolos() :
     'Esta clase representa la tabla de simbolos'
 
-    def __init__(self, simbolos = {}) :
+    def __init__(self, simbolos = {}, funciones = {}) :
         self.simbolos = simbolos
+        self.funciones = funciones
 
     def agregar(self, simbolo) :
         self.simbolos[simbolo.id] = simbolo

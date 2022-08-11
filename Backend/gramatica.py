@@ -99,12 +99,13 @@ lex.lex()
 precedence = (
     #('left','CONCAT'),
     ('left','MAS','MENOS'),
-    ('left','POR','DIVIDIDO')#,
-    #('right','UMENOS')
+    ('left','POR','DIVIDIDO'),
+    ('right','UMENOS')
     )
 
 from expresiones import *
 from instrucciones import *
+from ts import TIPO_DATO
 
 def p_init(t) :
     'inicio            : instrucciones'
@@ -120,16 +121,43 @@ def p_instrucciones_instruccion(t) :
     t[0] = [t[1]]
 
 def p_instruccion(t) :
-    'instruccion      : imprimir_instr'
+    '''instruccion      :   imprimir_instr'''
     t[0] = t[1]
 
 def p_instruccion_imprimir(t) :
-    'imprimir_instr     : PRINTLN ADMIR PARIZQ expresion_cadena PARDER PTCOMA'
+    '''imprimir_instr     : PRINTLN ADMIR PARIZQ CADENA PARDER PTCOMA'''
+    t[0] =Imprimir(ExpresionDobleComilla(t[4]))
+
+def p_instruccion_imprimir(t) :
+    '''imprimir_instr     : PRINTLN ADMIR PARIZQ expresion_numerica PARDER PTCOMA'''
     t[0] =Imprimir(t[4])
 
-def p_expresion_cadena(t) :
-    'expresion_cadena     : CADENA'
-    t[0] = ExpresionDobleComilla(t[1])
+def p_expresion_binaria(t):
+    '''expresion_numerica : expresion_numerica MAS expresion_numerica
+                        | expresion_numerica MENOS expresion_numerica
+                        | expresion_numerica POR expresion_numerica
+                        | expresion_numerica DIVIDIDO expresion_numerica'''
+    if t[2] == '+'  : t[0] = ExpresionBinaria(t[1], t[3], OPERACION_ARITMETICA.MAS)
+    elif t[2] == '-': t[0] = ExpresionBinaria(t[1], t[3], OPERACION_ARITMETICA.MENOS)
+    elif t[2] == '*': t[0] = ExpresionBinaria(t[1], t[3], OPERACION_ARITMETICA.POR)
+    elif t[2] == '/': t[0] = ExpresionBinaria(t[1], t[3], OPERACION_ARITMETICA.DIVIDIDO)
+
+def p_expresion_unaria(t):
+    'expresion_numerica : MENOS expresion_numerica %prec UMENOS'
+    t[0] = ExpresionNegativo(t[2])
+
+
+def p_expresion_agrupacion(t):
+    'expresion_numerica : PARIZQ expresion_numerica PARDER'
+    t[0] = t[2]
+
+def p_expresion_number(t):
+    '''expresion_numerica : ENTERO'''
+    t[0] = ExpresionNumero(t[1],TIPO_DATO.INT64)
+
+def p_expresion_numberd(t):
+    '''expresion_numerica : DECIMAL'''
+    t[0] = ExpresionNumero(t[1],TIPO_DATO.FLOAT64)
 
 # Error sintactico
 def p_error(p):

@@ -5,6 +5,7 @@ class OPERACION_ARITMETICA(Enum) :
     MENOS = 2
     POR = 3
     DIVIDIDO = 4
+    POTENCIA = 5
 
 class OPERACION_LOGICA(Enum) :
     MAYOR_QUE = 1
@@ -28,10 +29,46 @@ class ExpresionBinaria(ExpresionNumerica) :
         self.exp2 = exp2
         self.operador = operador
 
+class ExpresionNegativo(ExpresionNumerica) :
+    '''
+        Esta clase representa la Expresión Aritmética Negativa.
+        Esta clase recibe la expresion
+    '''
+    def __init__(self, exp) :
+        self.exp = exp
+
+
+class ExpresionNumero(ExpresionNumerica) :
+    '''
+        Esta clase representa una expresión numérica entera o decimal.
+    '''
+
+    def __init__(self, val, tipo) :
+        self.val = val
+        self.tipo = tipo
+
+class ExpresionIdentificador(ExpresionNumerica) :
+    '''
+        Esta clase representa un identificador.
+    '''
+
+    def __init__(self, id) :
+        self.id = id
+
 class ExpresionCadena :
     '''
         Esta clase representa una Expresión de tipo cadena.
     '''
+
+class ExpresionConcatenar(ExpresionCadena) :
+    '''
+        Esta clase representa una Expresión de tipo cadena.
+        Recibe como parámetros las 2 expresiones a concatenar
+    '''
+
+    def __init__(self, exp1, exp2) :
+        self.exp1 = exp1
+        self.exp2 = exp2
 
 class ExpresionDobleComilla(ExpresionCadena) :
     '''

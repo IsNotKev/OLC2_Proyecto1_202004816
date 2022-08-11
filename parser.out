@@ -2,20 +2,15 @@ Created by PLY (http://www.dabeaz.com/ply)
 
 Unused terminals:
 
-    DECIMAL
-    DIVIDIDO
-    ENTERO
+    CADENA
     ID
     IGUAL
     IGUALQUE
     LLAVDER
     LLAVIZQ
-    MAS
     MAYQUE
-    MENOS
     MENQUE
     NIGUALQUE
-    POR
 
 Grammar
 
@@ -24,36 +19,43 @@ Rule 1     inicio -> instrucciones
 Rule 2     instrucciones -> instrucciones instruccion
 Rule 3     instrucciones -> instruccion
 Rule 4     instruccion -> imprimir_instr
-Rule 5     imprimir_instr -> PRINTLN ADMIR PARIZQ expresion_cadena PARDER PTCOMA
-Rule 6     expresion_cadena -> CADENA
+Rule 5     imprimir_instr -> PRINTLN ADMIR PARIZQ expresion_numerica PARDER PTCOMA
+Rule 6     expresion_numerica -> expresion_numerica MAS expresion_numerica
+Rule 7     expresion_numerica -> expresion_numerica MENOS expresion_numerica
+Rule 8     expresion_numerica -> expresion_numerica POR expresion_numerica
+Rule 9     expresion_numerica -> expresion_numerica DIVIDIDO expresion_numerica
+Rule 10    expresion_numerica -> MENOS expresion_numerica
+Rule 11    expresion_numerica -> PARIZQ expresion_numerica PARDER
+Rule 12    expresion_numerica -> ENTERO
+Rule 13    expresion_numerica -> DECIMAL
 
 Terminals, with rules where they appear
 
 ADMIR                : 5
-CADENA               : 6
-DECIMAL              : 
-DIVIDIDO             : 
-ENTERO               : 
+CADENA               : 
+DECIMAL              : 13
+DIVIDIDO             : 9
+ENTERO               : 12
 ID                   : 
 IGUAL                : 
 IGUALQUE             : 
 LLAVDER              : 
 LLAVIZQ              : 
-MAS                  : 
+MAS                  : 6
 MAYQUE               : 
-MENOS                : 
+MENOS                : 7 10
 MENQUE               : 
 NIGUALQUE            : 
-PARDER               : 5
-PARIZQ               : 5
-POR                  : 
+PARDER               : 5 11
+PARIZQ               : 5 11
+POR                  : 8
 PRINTLN              : 5
 PTCOMA               : 5
 error                : 
 
 Nonterminals, with rules where they appear
 
-expresion_cadena     : 5
+expresion_numerica   : 5 6 6 7 7 8 8 9 9 10 11
 imprimir_instr       : 4
 inicio               : 0
 instruccion          : 2 3
@@ -67,7 +69,7 @@ state 0
     (2) instrucciones -> . instrucciones instruccion
     (3) instrucciones -> . instruccion
     (4) instruccion -> . imprimir_instr
-    (5) imprimir_instr -> . PRINTLN ADMIR PARIZQ expresion_cadena PARDER PTCOMA
+    (5) imprimir_instr -> . PRINTLN ADMIR PARIZQ expresion_numerica PARDER PTCOMA
 
     PRINTLN         shift and go to state 5
 
@@ -87,7 +89,7 @@ state 2
     (1) inicio -> instrucciones .
     (2) instrucciones -> instrucciones . instruccion
     (4) instruccion -> . imprimir_instr
-    (5) imprimir_instr -> . PRINTLN ADMIR PARIZQ expresion_cadena PARDER PTCOMA
+    (5) imprimir_instr -> . PRINTLN ADMIR PARIZQ expresion_numerica PARDER PTCOMA
 
     $end            reduce using rule 1 (inicio -> instrucciones .)
     PRINTLN         shift and go to state 5
@@ -113,7 +115,7 @@ state 4
 
 state 5
 
-    (5) imprimir_instr -> PRINTLN . ADMIR PARIZQ expresion_cadena PARDER PTCOMA
+    (5) imprimir_instr -> PRINTLN . ADMIR PARIZQ expresion_numerica PARDER PTCOMA
 
     ADMIR           shift and go to state 7
 
@@ -128,45 +130,318 @@ state 6
 
 state 7
 
-    (5) imprimir_instr -> PRINTLN ADMIR . PARIZQ expresion_cadena PARDER PTCOMA
+    (5) imprimir_instr -> PRINTLN ADMIR . PARIZQ expresion_numerica PARDER PTCOMA
 
     PARIZQ          shift and go to state 8
 
 
 state 8
 
-    (5) imprimir_instr -> PRINTLN ADMIR PARIZQ . expresion_cadena PARDER PTCOMA
-    (6) expresion_cadena -> . CADENA
+    (5) imprimir_instr -> PRINTLN ADMIR PARIZQ . expresion_numerica PARDER PTCOMA
+    (6) expresion_numerica -> . expresion_numerica MAS expresion_numerica
+    (7) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
+    (8) expresion_numerica -> . expresion_numerica POR expresion_numerica
+    (9) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
+    (10) expresion_numerica -> . MENOS expresion_numerica
+    (11) expresion_numerica -> . PARIZQ expresion_numerica PARDER
+    (12) expresion_numerica -> . ENTERO
+    (13) expresion_numerica -> . DECIMAL
 
-    CADENA          shift and go to state 10
+    MENOS           shift and go to state 11
+    PARIZQ          shift and go to state 9
+    ENTERO          shift and go to state 12
+    DECIMAL         shift and go to state 13
 
-    expresion_cadena               shift and go to state 9
+    expresion_numerica             shift and go to state 10
 
 state 9
 
-    (5) imprimir_instr -> PRINTLN ADMIR PARIZQ expresion_cadena . PARDER PTCOMA
+    (11) expresion_numerica -> PARIZQ . expresion_numerica PARDER
+    (6) expresion_numerica -> . expresion_numerica MAS expresion_numerica
+    (7) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
+    (8) expresion_numerica -> . expresion_numerica POR expresion_numerica
+    (9) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
+    (10) expresion_numerica -> . MENOS expresion_numerica
+    (11) expresion_numerica -> . PARIZQ expresion_numerica PARDER
+    (12) expresion_numerica -> . ENTERO
+    (13) expresion_numerica -> . DECIMAL
 
-    PARDER          shift and go to state 11
+    MENOS           shift and go to state 11
+    PARIZQ          shift and go to state 9
+    ENTERO          shift and go to state 12
+    DECIMAL         shift and go to state 13
 
+    expresion_numerica             shift and go to state 14
 
 state 10
 
-    (6) expresion_cadena -> CADENA .
+    (5) imprimir_instr -> PRINTLN ADMIR PARIZQ expresion_numerica . PARDER PTCOMA
+    (6) expresion_numerica -> expresion_numerica . MAS expresion_numerica
+    (7) expresion_numerica -> expresion_numerica . MENOS expresion_numerica
+    (8) expresion_numerica -> expresion_numerica . POR expresion_numerica
+    (9) expresion_numerica -> expresion_numerica . DIVIDIDO expresion_numerica
 
-    PARDER          reduce using rule 6 (expresion_cadena -> CADENA .)
+    PARDER          shift and go to state 15
+    MAS             shift and go to state 16
+    MENOS           shift and go to state 17
+    POR             shift and go to state 18
+    DIVIDIDO        shift and go to state 19
 
 
 state 11
 
-    (5) imprimir_instr -> PRINTLN ADMIR PARIZQ expresion_cadena PARDER . PTCOMA
+    (10) expresion_numerica -> MENOS . expresion_numerica
+    (6) expresion_numerica -> . expresion_numerica MAS expresion_numerica
+    (7) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
+    (8) expresion_numerica -> . expresion_numerica POR expresion_numerica
+    (9) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
+    (10) expresion_numerica -> . MENOS expresion_numerica
+    (11) expresion_numerica -> . PARIZQ expresion_numerica PARDER
+    (12) expresion_numerica -> . ENTERO
+    (13) expresion_numerica -> . DECIMAL
 
-    PTCOMA          shift and go to state 12
+    MENOS           shift and go to state 11
+    PARIZQ          shift and go to state 9
+    ENTERO          shift and go to state 12
+    DECIMAL         shift and go to state 13
 
+    expresion_numerica             shift and go to state 20
 
 state 12
 
-    (5) imprimir_instr -> PRINTLN ADMIR PARIZQ expresion_cadena PARDER PTCOMA .
+    (12) expresion_numerica -> ENTERO .
 
-    PRINTLN         reduce using rule 5 (imprimir_instr -> PRINTLN ADMIR PARIZQ expresion_cadena PARDER PTCOMA .)
-    $end            reduce using rule 5 (imprimir_instr -> PRINTLN ADMIR PARIZQ expresion_cadena PARDER PTCOMA .)
+    PARDER          reduce using rule 12 (expresion_numerica -> ENTERO .)
+    MAS             reduce using rule 12 (expresion_numerica -> ENTERO .)
+    MENOS           reduce using rule 12 (expresion_numerica -> ENTERO .)
+    POR             reduce using rule 12 (expresion_numerica -> ENTERO .)
+    DIVIDIDO        reduce using rule 12 (expresion_numerica -> ENTERO .)
+
+
+state 13
+
+    (13) expresion_numerica -> DECIMAL .
+
+    PARDER          reduce using rule 13 (expresion_numerica -> DECIMAL .)
+    MAS             reduce using rule 13 (expresion_numerica -> DECIMAL .)
+    MENOS           reduce using rule 13 (expresion_numerica -> DECIMAL .)
+    POR             reduce using rule 13 (expresion_numerica -> DECIMAL .)
+    DIVIDIDO        reduce using rule 13 (expresion_numerica -> DECIMAL .)
+
+
+state 14
+
+    (11) expresion_numerica -> PARIZQ expresion_numerica . PARDER
+    (6) expresion_numerica -> expresion_numerica . MAS expresion_numerica
+    (7) expresion_numerica -> expresion_numerica . MENOS expresion_numerica
+    (8) expresion_numerica -> expresion_numerica . POR expresion_numerica
+    (9) expresion_numerica -> expresion_numerica . DIVIDIDO expresion_numerica
+
+    PARDER          shift and go to state 21
+    MAS             shift and go to state 16
+    MENOS           shift and go to state 17
+    POR             shift and go to state 18
+    DIVIDIDO        shift and go to state 19
+
+
+state 15
+
+    (5) imprimir_instr -> PRINTLN ADMIR PARIZQ expresion_numerica PARDER . PTCOMA
+
+    PTCOMA          shift and go to state 22
+
+
+state 16
+
+    (6) expresion_numerica -> expresion_numerica MAS . expresion_numerica
+    (6) expresion_numerica -> . expresion_numerica MAS expresion_numerica
+    (7) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
+    (8) expresion_numerica -> . expresion_numerica POR expresion_numerica
+    (9) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
+    (10) expresion_numerica -> . MENOS expresion_numerica
+    (11) expresion_numerica -> . PARIZQ expresion_numerica PARDER
+    (12) expresion_numerica -> . ENTERO
+    (13) expresion_numerica -> . DECIMAL
+
+    MENOS           shift and go to state 11
+    PARIZQ          shift and go to state 9
+    ENTERO          shift and go to state 12
+    DECIMAL         shift and go to state 13
+
+    expresion_numerica             shift and go to state 23
+
+state 17
+
+    (7) expresion_numerica -> expresion_numerica MENOS . expresion_numerica
+    (6) expresion_numerica -> . expresion_numerica MAS expresion_numerica
+    (7) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
+    (8) expresion_numerica -> . expresion_numerica POR expresion_numerica
+    (9) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
+    (10) expresion_numerica -> . MENOS expresion_numerica
+    (11) expresion_numerica -> . PARIZQ expresion_numerica PARDER
+    (12) expresion_numerica -> . ENTERO
+    (13) expresion_numerica -> . DECIMAL
+
+    MENOS           shift and go to state 11
+    PARIZQ          shift and go to state 9
+    ENTERO          shift and go to state 12
+    DECIMAL         shift and go to state 13
+
+    expresion_numerica             shift and go to state 24
+
+state 18
+
+    (8) expresion_numerica -> expresion_numerica POR . expresion_numerica
+    (6) expresion_numerica -> . expresion_numerica MAS expresion_numerica
+    (7) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
+    (8) expresion_numerica -> . expresion_numerica POR expresion_numerica
+    (9) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
+    (10) expresion_numerica -> . MENOS expresion_numerica
+    (11) expresion_numerica -> . PARIZQ expresion_numerica PARDER
+    (12) expresion_numerica -> . ENTERO
+    (13) expresion_numerica -> . DECIMAL
+
+    MENOS           shift and go to state 11
+    PARIZQ          shift and go to state 9
+    ENTERO          shift and go to state 12
+    DECIMAL         shift and go to state 13
+
+    expresion_numerica             shift and go to state 25
+
+state 19
+
+    (9) expresion_numerica -> expresion_numerica DIVIDIDO . expresion_numerica
+    (6) expresion_numerica -> . expresion_numerica MAS expresion_numerica
+    (7) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
+    (8) expresion_numerica -> . expresion_numerica POR expresion_numerica
+    (9) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
+    (10) expresion_numerica -> . MENOS expresion_numerica
+    (11) expresion_numerica -> . PARIZQ expresion_numerica PARDER
+    (12) expresion_numerica -> . ENTERO
+    (13) expresion_numerica -> . DECIMAL
+
+    MENOS           shift and go to state 11
+    PARIZQ          shift and go to state 9
+    ENTERO          shift and go to state 12
+    DECIMAL         shift and go to state 13
+
+    expresion_numerica             shift and go to state 26
+
+state 20
+
+    (10) expresion_numerica -> MENOS expresion_numerica .
+    (6) expresion_numerica -> expresion_numerica . MAS expresion_numerica
+    (7) expresion_numerica -> expresion_numerica . MENOS expresion_numerica
+    (8) expresion_numerica -> expresion_numerica . POR expresion_numerica
+    (9) expresion_numerica -> expresion_numerica . DIVIDIDO expresion_numerica
+
+    PARDER          reduce using rule 10 (expresion_numerica -> MENOS expresion_numerica .)
+    MAS             reduce using rule 10 (expresion_numerica -> MENOS expresion_numerica .)
+    MENOS           reduce using rule 10 (expresion_numerica -> MENOS expresion_numerica .)
+    POR             reduce using rule 10 (expresion_numerica -> MENOS expresion_numerica .)
+    DIVIDIDO        reduce using rule 10 (expresion_numerica -> MENOS expresion_numerica .)
+
+  ! MAS             [ shift and go to state 16 ]
+  ! MENOS           [ shift and go to state 17 ]
+  ! POR             [ shift and go to state 18 ]
+  ! DIVIDIDO        [ shift and go to state 19 ]
+
+
+state 21
+
+    (11) expresion_numerica -> PARIZQ expresion_numerica PARDER .
+
+    PARDER          reduce using rule 11 (expresion_numerica -> PARIZQ expresion_numerica PARDER .)
+    MAS             reduce using rule 11 (expresion_numerica -> PARIZQ expresion_numerica PARDER .)
+    MENOS           reduce using rule 11 (expresion_numerica -> PARIZQ expresion_numerica PARDER .)
+    POR             reduce using rule 11 (expresion_numerica -> PARIZQ expresion_numerica PARDER .)
+    DIVIDIDO        reduce using rule 11 (expresion_numerica -> PARIZQ expresion_numerica PARDER .)
+
+
+state 22
+
+    (5) imprimir_instr -> PRINTLN ADMIR PARIZQ expresion_numerica PARDER PTCOMA .
+
+    PRINTLN         reduce using rule 5 (imprimir_instr -> PRINTLN ADMIR PARIZQ expresion_numerica PARDER PTCOMA .)
+    $end            reduce using rule 5 (imprimir_instr -> PRINTLN ADMIR PARIZQ expresion_numerica PARDER PTCOMA .)
+
+
+state 23
+
+    (6) expresion_numerica -> expresion_numerica MAS expresion_numerica .
+    (6) expresion_numerica -> expresion_numerica . MAS expresion_numerica
+    (7) expresion_numerica -> expresion_numerica . MENOS expresion_numerica
+    (8) expresion_numerica -> expresion_numerica . POR expresion_numerica
+    (9) expresion_numerica -> expresion_numerica . DIVIDIDO expresion_numerica
+
+    PARDER          reduce using rule 6 (expresion_numerica -> expresion_numerica MAS expresion_numerica .)
+    MAS             reduce using rule 6 (expresion_numerica -> expresion_numerica MAS expresion_numerica .)
+    MENOS           reduce using rule 6 (expresion_numerica -> expresion_numerica MAS expresion_numerica .)
+    POR             shift and go to state 18
+    DIVIDIDO        shift and go to state 19
+
+  ! POR             [ reduce using rule 6 (expresion_numerica -> expresion_numerica MAS expresion_numerica .) ]
+  ! DIVIDIDO        [ reduce using rule 6 (expresion_numerica -> expresion_numerica MAS expresion_numerica .) ]
+  ! MAS             [ shift and go to state 16 ]
+  ! MENOS           [ shift and go to state 17 ]
+
+
+state 24
+
+    (7) expresion_numerica -> expresion_numerica MENOS expresion_numerica .
+    (6) expresion_numerica -> expresion_numerica . MAS expresion_numerica
+    (7) expresion_numerica -> expresion_numerica . MENOS expresion_numerica
+    (8) expresion_numerica -> expresion_numerica . POR expresion_numerica
+    (9) expresion_numerica -> expresion_numerica . DIVIDIDO expresion_numerica
+
+    PARDER          reduce using rule 7 (expresion_numerica -> expresion_numerica MENOS expresion_numerica .)
+    MAS             reduce using rule 7 (expresion_numerica -> expresion_numerica MENOS expresion_numerica .)
+    MENOS           reduce using rule 7 (expresion_numerica -> expresion_numerica MENOS expresion_numerica .)
+    POR             shift and go to state 18
+    DIVIDIDO        shift and go to state 19
+
+  ! POR             [ reduce using rule 7 (expresion_numerica -> expresion_numerica MENOS expresion_numerica .) ]
+  ! DIVIDIDO        [ reduce using rule 7 (expresion_numerica -> expresion_numerica MENOS expresion_numerica .) ]
+  ! MAS             [ shift and go to state 16 ]
+  ! MENOS           [ shift and go to state 17 ]
+
+
+state 25
+
+    (8) expresion_numerica -> expresion_numerica POR expresion_numerica .
+    (6) expresion_numerica -> expresion_numerica . MAS expresion_numerica
+    (7) expresion_numerica -> expresion_numerica . MENOS expresion_numerica
+    (8) expresion_numerica -> expresion_numerica . POR expresion_numerica
+    (9) expresion_numerica -> expresion_numerica . DIVIDIDO expresion_numerica
+
+    PARDER          reduce using rule 8 (expresion_numerica -> expresion_numerica POR expresion_numerica .)
+    MAS             reduce using rule 8 (expresion_numerica -> expresion_numerica POR expresion_numerica .)
+    MENOS           reduce using rule 8 (expresion_numerica -> expresion_numerica POR expresion_numerica .)
+    POR             reduce using rule 8 (expresion_numerica -> expresion_numerica POR expresion_numerica .)
+    DIVIDIDO        reduce using rule 8 (expresion_numerica -> expresion_numerica POR expresion_numerica .)
+
+  ! MAS             [ shift and go to state 16 ]
+  ! MENOS           [ shift and go to state 17 ]
+  ! POR             [ shift and go to state 18 ]
+  ! DIVIDIDO        [ shift and go to state 19 ]
+
+
+state 26
+
+    (9) expresion_numerica -> expresion_numerica DIVIDIDO expresion_numerica .
+    (6) expresion_numerica -> expresion_numerica . MAS expresion_numerica
+    (7) expresion_numerica -> expresion_numerica . MENOS expresion_numerica
+    (8) expresion_numerica -> expresion_numerica . POR expresion_numerica
+    (9) expresion_numerica -> expresion_numerica . DIVIDIDO expresion_numerica
+
+    PARDER          reduce using rule 9 (expresion_numerica -> expresion_numerica DIVIDIDO expresion_numerica .)
+    MAS             reduce using rule 9 (expresion_numerica -> expresion_numerica DIVIDIDO expresion_numerica .)
+    MENOS           reduce using rule 9 (expresion_numerica -> expresion_numerica DIVIDIDO expresion_numerica .)
+    POR             reduce using rule 9 (expresion_numerica -> expresion_numerica DIVIDIDO expresion_numerica .)
+    DIVIDIDO        reduce using rule 9 (expresion_numerica -> expresion_numerica DIVIDIDO expresion_numerica .)
+
+  ! MAS             [ shift and go to state 16 ]
+  ! MENOS           [ shift and go to state 17 ]
+  ! POR             [ shift and go to state 18 ]
+  ! DIVIDIDO        [ shift and go to state 19 ]
 
