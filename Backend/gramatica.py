@@ -2,10 +2,22 @@
 
 reservadas = {
     'println': 'PRINTLN',
+    'powf'   : 'POWF',
+    'pow'    : 'POW',
+    'i64'    : 'INT',
+    'f64'    : 'FLOAT',
+    'bool'   : 'BOOLEAN',
+    'char'   : 'CHAR',
+    '&str'   : 'ISTRING',
+    'String' : 'STRING',
+    'true'   : 'TRUE',
+    'false'  : 'FALSE'
 }
 
 tokens  = [
     'PTCOMA',
+    'DOSPUNTOS',
+    'COMA',
     'LLAVIZQ',
     'LLAVDER',
     'PARIZQ',
@@ -15,7 +27,10 @@ tokens  = [
     'MENOS',
     'POR',
     'DIVIDIDO',
+    'MODULO',
     #'CONCAT',
+    'MAYORIGUAL',
+    'MENORIGUAL',
     'MENQUE',
     'MAYQUE',
     'IGUALQUE',
@@ -29,6 +44,8 @@ tokens  = [
 
 # Tokens
 t_PTCOMA    = r';'
+t_DOSPUNTOS = r':'
+t_COMA      = r','
 t_LLAVIZQ   = r'{'
 t_LLAVDER   = r'}'
 t_PARIZQ    = r'\('
@@ -38,7 +55,10 @@ t_MAS       = r'\+'
 t_MENOS     = r'-'
 t_POR       = r'\*'
 t_DIVIDIDO  = r'/'
+t_MODULO    = r'%'
 #t_CONCAT    = r'&'
+t_MAYORIGUAL = r'>='
+t_MENORIGUAL = r'<='
 t_MENQUE    = r'<'
 t_MAYQUE    = r'>'
 t_IGUALQUE  = r'=='
@@ -64,15 +84,15 @@ def t_ENTERO(t):
         t.value = 0
     return t
 
-def t_ID(t):
-     r'[a-zA-Z_][a-zA-Z_0-9]*'
-     t.type = reservadas.get(t.value,'ID')    # Check for reserved words
-     return t
-
 def t_CADENA(t):
     r'\".*?\"'
     t.value = t.value[1:-1] # remuevo las comillas
     return t 
+
+def t_ID(t):
+     r'[a-zA-Z_][a-zA-Z_0-9]*'
+     t.type = reservadas.get(t.value,'ID')    # Check for reserved words
+     return t
 
 def t_COMENTARIO_SIMPLE(t):
     r'//.*\n'
@@ -99,7 +119,7 @@ lex.lex()
 precedence = (
     #('left','CONCAT'),
     ('left','MAS','MENOS'),
-    ('left','POR','DIVIDIDO'),
+    ('left','POR','DIVIDIDO','MODULO'),
     ('right','UMENOS')
     )
 
@@ -126,26 +146,48 @@ def p_instruccion(t) :
 
 def p_instruccion_imprimir(t) :
     '''imprimir_instr     : PRINTLN ADMIR PARIZQ CADENA PARDER PTCOMA'''
-    t[0] =Imprimir(ExpresionDobleComilla(t[4]))
+    t[0] =Imprimir(ExpresionDobleComilla(t[4], TIPO_DATO.STRING),parametros=[])
 
-def p_instruccion_imprimir(t) :
-    '''imprimir_instr     : PRINTLN ADMIR PARIZQ expresion_numerica PARDER PTCOMA'''
-    t[0] =Imprimir(t[4])
+def p_instruccion_imprimir_p(t) :
+    '''imprimir_instr     : PRINTLN ADMIR PARIZQ CADENA pparam PARDER PTCOMA'''
+    t[0] =Imprimir(ExpresionDobleComilla(t[4], TIPO_DATO.STRING), t[5])
+
+def p_lpparam(t):
+    '''pparam                : pparam COMA expresion_cadena 
+                            |  pparam COMA expresion_numerica 
+                            |  pparam COMA expresion_booleana'''
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_pparam(t):
+    '''pparam                :  COMA expresion_cadena 
+                            |   COMA expresion_numerica 
+                            |   COMA expresion_booleana'''
+    t[0] = [t[2]]
 
 def p_expresion_binaria(t):
     '''expresion_numerica : expresion_numerica MAS expresion_numerica
                         | expresion_numerica MENOS expresion_numerica
                         | expresion_numerica POR expresion_numerica
-                        | expresion_numerica DIVIDIDO expresion_numerica'''
+                        | expresion_numerica DIVIDIDO expresion_numerica
+                        | expresion_numerica MODULO expresion_numerica'''
     if t[2] == '+'  : t[0] = ExpresionBinaria(t[1], t[3], OPERACION_ARITMETICA.MAS)
     elif t[2] == '-': t[0] = ExpresionBinaria(t[1], t[3], OPERACION_ARITMETICA.MENOS)
     elif t[2] == '*': t[0] = ExpresionBinaria(t[1], t[3], OPERACION_ARITMETICA.POR)
     elif t[2] == '/': t[0] = ExpresionBinaria(t[1], t[3], OPERACION_ARITMETICA.DIVIDIDO)
+    elif t[2] == '%': t[0] = ExpresionBinaria(t[1], t[3], OPERACION_ARITMETICA.MODULO)
+
+def p_expresion_potencia_I(t):
+    'expresion_numerica : INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER'
+    t[0] = ExpresionPotencia(t[6],t[8],TIPO_DATO.INT64)
+
+def p_expresion_potencia_F(t):
+    'expresion_numerica : FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER'
+    t[0] = ExpresionPotencia(t[6],t[8],TIPO_DATO.FLOAT64)
 
 def p_expresion_unaria(t):
     'expresion_numerica : MENOS expresion_numerica %prec UMENOS'
     t[0] = ExpresionNegativo(t[2])
-
 
 def p_expresion_agrupacion(t):
     'expresion_numerica : PARIZQ expresion_numerica PARDER'
@@ -158,6 +200,38 @@ def p_expresion_number(t):
 def p_expresion_numberd(t):
     '''expresion_numerica : DECIMAL'''
     t[0] = ExpresionNumero(t[1],TIPO_DATO.FLOAT64)
+
+def p_expresion_cadena(t) :
+    'expresion_cadena     : CADENA'
+    t[0] = ExpresionDobleComilla(t[1],TIPO_DATO.STRING)
+
+def p_expresion_booleanaT(t) :
+    'expresion_booleana     : TRUE'
+    t[0] = ExpresionLogicaTF(True, TIPO_DATO.BOOLEAN)
+
+def p_expresion_booleanaF(t) :
+    'expresion_booleana     : FALSE'
+    t[0] = ExpresionLogicaTF(False, TIPO_DATO.BOOLEAN)
+
+def p_expresion_booleanaD(t) :
+    '''expresion_booleana     : expresion_cadena
+                            |   expresion_numerica'''
+    t[0] = t[1]
+
+def p_expresion_agrupacionLogica(t):
+    'expresion_booleana : PARIZQ expresion_booleana PARDER'  
+    t[0] = t[2]
+
+def p_expresion_booleana(t):
+    '''expresion_booleana     : expresion_booleana MAYQUE expresion_booleana
+                            |   expresion_booleana MENQUE expresion_booleana
+                            |   expresion_booleana IGUALQUE expresion_booleana
+                            |   expresion_booleana NIGUALQUE expresion_booleana''' 
+    
+    if t[2] == '>'    : t[0] = ExpresionLogicaBinaria(t[1], t[3], OPERACION_LOGICA.MAYOR_QUE)
+    elif t[2] == '<'  : t[0] = ExpresionLogicaBinaria(t[1], t[3], OPERACION_LOGICA.MENOR_QUE)
+    elif t[2] == '==' : t[0] = ExpresionLogicaBinaria(t[1], t[3], OPERACION_LOGICA.IGUAL)
+    elif t[2] == '!=' : t[0] = ExpresionLogicaBinaria(t[1], t[3], OPERACION_LOGICA.DIFERENTE)
 
 # Error sintactico
 def p_error(p):

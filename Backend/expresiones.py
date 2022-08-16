@@ -5,7 +5,7 @@ class OPERACION_ARITMETICA(Enum) :
     MENOS = 2
     POR = 3
     DIVIDIDO = 4
-    POTENCIA = 5
+    MODULO = 5
 
 class OPERACION_LOGICA(Enum) :
     MAYOR_QUE = 1
@@ -28,6 +28,17 @@ class ExpresionBinaria(ExpresionNumerica) :
         self.exp1 = exp1
         self.exp2 = exp2
         self.operador = operador
+
+class ExpresionPotencia(ExpresionNumerica) :
+    '''
+        Esta clase representa la Expresión Aritmética Binaria.
+        Esta clase recibe los operandos y el operador
+    '''
+
+    def __init__(self, exp1, exp2, tipo) :
+        self.exp1 = exp1
+        self.exp2 = exp2
+        self.tipo = tipo
 
 class ExpresionNegativo(ExpresionNumerica) :
     '''
@@ -76,5 +87,22 @@ class ExpresionDobleComilla(ExpresionCadena) :
         Recibe como parámetro el valor del token procesado por el analizador léxico
     '''
 
-    def __init__(self, val) :
+    def __init__(self, val, tipo) :
         self.val = val
+        self.tipo = tipo
+
+class ExpresionLogica :
+    '''
+       Esta clase representa una Expresión de tipo Logica.
+    '''
+    
+class ExpresionLogicaBinaria(ExpresionLogica):
+    def __init__(self, exp1, exp2, operador) :
+        self.exp1 = exp1
+        self.exp2 = exp2
+        self.operador = operador
+
+class ExpresionLogicaTF(ExpresionLogica):
+    def __init__(self, val, tipo) :
+        self.val = val
+        self.tipo = tipo

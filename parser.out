@@ -2,15 +2,16 @@ Created by PLY (http://www.dabeaz.com/ply)
 
 Unused terminals:
 
-    CADENA
+    BOOLEAN
+    CHAR
     ID
     IGUAL
-    IGUALQUE
+    ISTRING
     LLAVDER
     LLAVIZQ
-    MAYQUE
-    MENQUE
-    NIGUALQUE
+    MAYORIGUAL
+    MENORIGUAL
+    STRING
 
 Grammar
 
@@ -19,47 +20,85 @@ Rule 1     inicio -> instrucciones
 Rule 2     instrucciones -> instrucciones instruccion
 Rule 3     instrucciones -> instruccion
 Rule 4     instruccion -> imprimir_instr
-Rule 5     imprimir_instr -> PRINTLN ADMIR PARIZQ expresion_numerica PARDER PTCOMA
-Rule 6     expresion_numerica -> expresion_numerica MAS expresion_numerica
-Rule 7     expresion_numerica -> expresion_numerica MENOS expresion_numerica
-Rule 8     expresion_numerica -> expresion_numerica POR expresion_numerica
-Rule 9     expresion_numerica -> expresion_numerica DIVIDIDO expresion_numerica
-Rule 10    expresion_numerica -> MENOS expresion_numerica
-Rule 11    expresion_numerica -> PARIZQ expresion_numerica PARDER
-Rule 12    expresion_numerica -> ENTERO
-Rule 13    expresion_numerica -> DECIMAL
+Rule 5     imprimir_instr -> PRINTLN ADMIR PARIZQ CADENA PARDER PTCOMA
+Rule 6     imprimir_instr -> PRINTLN ADMIR PARIZQ CADENA pparam PARDER PTCOMA
+Rule 7     pparam -> pparam COMA expresion_cadena
+Rule 8     pparam -> pparam COMA expresion_numerica
+Rule 9     pparam -> pparam COMA expresion_booleana
+Rule 10    pparam -> COMA expresion_cadena
+Rule 11    pparam -> COMA expresion_numerica
+Rule 12    pparam -> COMA expresion_booleana
+Rule 13    expresion_numerica -> expresion_numerica MAS expresion_numerica
+Rule 14    expresion_numerica -> expresion_numerica MENOS expresion_numerica
+Rule 15    expresion_numerica -> expresion_numerica POR expresion_numerica
+Rule 16    expresion_numerica -> expresion_numerica DIVIDIDO expresion_numerica
+Rule 17    expresion_numerica -> expresion_numerica MODULO expresion_numerica
+Rule 18    expresion_numerica -> INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER
+Rule 19    expresion_numerica -> FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER
+Rule 20    expresion_numerica -> MENOS expresion_numerica
+Rule 21    expresion_numerica -> PARIZQ expresion_numerica PARDER
+Rule 22    expresion_numerica -> ENTERO
+Rule 23    expresion_numerica -> DECIMAL
+Rule 24    expresion_cadena -> CADENA
+Rule 25    expresion_booleana -> TRUE
+Rule 26    expresion_booleana -> FALSE
+Rule 27    expresion_booleana -> expresion_cadena
+Rule 28    expresion_booleana -> expresion_numerica
+Rule 29    expresion_booleana -> PARIZQ expresion_booleana PARDER
+Rule 30    expresion_booleana -> expresion_booleana MAYQUE expresion_booleana
+Rule 31    expresion_booleana -> expresion_booleana MENQUE expresion_booleana
+Rule 32    expresion_booleana -> expresion_booleana IGUALQUE expresion_booleana
+Rule 33    expresion_booleana -> expresion_booleana NIGUALQUE expresion_booleana
 
 Terminals, with rules where they appear
 
-ADMIR                : 5
-CADENA               : 
-DECIMAL              : 13
-DIVIDIDO             : 9
-ENTERO               : 12
+ADMIR                : 5 6
+BOOLEAN              : 
+CADENA               : 5 6 24
+CHAR                 : 
+COMA                 : 7 8 9 10 11 12 18 19
+DECIMAL              : 23
+DIVIDIDO             : 16
+DOSPUNTOS            : 18 18 19 19
+ENTERO               : 22
+FALSE                : 26
+FLOAT                : 19
 ID                   : 
 IGUAL                : 
-IGUALQUE             : 
+IGUALQUE             : 32
+INT                  : 18
+ISTRING              : 
 LLAVDER              : 
 LLAVIZQ              : 
-MAS                  : 6
-MAYQUE               : 
-MENOS                : 7 10
-MENQUE               : 
-NIGUALQUE            : 
-PARDER               : 5 11
-PARIZQ               : 5 11
-POR                  : 8
-PRINTLN              : 5
-PTCOMA               : 5
+MAS                  : 13
+MAYORIGUAL           : 
+MAYQUE               : 30
+MENORIGUAL           : 
+MENOS                : 14 20
+MENQUE               : 31
+MODULO               : 17
+NIGUALQUE            : 33
+PARDER               : 5 6 18 19 21 29
+PARIZQ               : 5 6 18 19 21 29
+POR                  : 15
+POW                  : 18
+POWF                 : 19
+PRINTLN              : 5 6
+PTCOMA               : 5 6
+STRING               : 
+TRUE                 : 25
 error                : 
 
 Nonterminals, with rules where they appear
 
-expresion_numerica   : 5 6 6 7 7 8 8 9 9 10 11
+expresion_booleana   : 9 12 29 30 30 31 31 32 32 33 33
+expresion_cadena     : 7 10 27
+expresion_numerica   : 8 11 13 13 14 14 15 15 16 16 17 17 18 18 19 19 20 21 28
 imprimir_instr       : 4
 inicio               : 0
 instruccion          : 2 3
 instrucciones        : 1 2
+pparam               : 6 7 8 9
 
 
 state 0
@@ -69,7 +108,8 @@ state 0
     (2) instrucciones -> . instrucciones instruccion
     (3) instrucciones -> . instruccion
     (4) instruccion -> . imprimir_instr
-    (5) imprimir_instr -> . PRINTLN ADMIR PARIZQ expresion_numerica PARDER PTCOMA
+    (5) imprimir_instr -> . PRINTLN ADMIR PARIZQ CADENA PARDER PTCOMA
+    (6) imprimir_instr -> . PRINTLN ADMIR PARIZQ CADENA pparam PARDER PTCOMA
 
     PRINTLN         shift and go to state 5
 
@@ -89,7 +129,8 @@ state 2
     (1) inicio -> instrucciones .
     (2) instrucciones -> instrucciones . instruccion
     (4) instruccion -> . imprimir_instr
-    (5) imprimir_instr -> . PRINTLN ADMIR PARIZQ expresion_numerica PARDER PTCOMA
+    (5) imprimir_instr -> . PRINTLN ADMIR PARIZQ CADENA PARDER PTCOMA
+    (6) imprimir_instr -> . PRINTLN ADMIR PARIZQ CADENA pparam PARDER PTCOMA
 
     $end            reduce using rule 1 (inicio -> instrucciones .)
     PRINTLN         shift and go to state 5
@@ -115,7 +156,8 @@ state 4
 
 state 5
 
-    (5) imprimir_instr -> PRINTLN . ADMIR PARIZQ expresion_numerica PARDER PTCOMA
+    (5) imprimir_instr -> PRINTLN . ADMIR PARIZQ CADENA PARDER PTCOMA
+    (6) imprimir_instr -> PRINTLN . ADMIR PARIZQ CADENA pparam PARDER PTCOMA
 
     ADMIR           shift and go to state 7
 
@@ -130,318 +172,1449 @@ state 6
 
 state 7
 
-    (5) imprimir_instr -> PRINTLN ADMIR . PARIZQ expresion_numerica PARDER PTCOMA
+    (5) imprimir_instr -> PRINTLN ADMIR . PARIZQ CADENA PARDER PTCOMA
+    (6) imprimir_instr -> PRINTLN ADMIR . PARIZQ CADENA pparam PARDER PTCOMA
 
     PARIZQ          shift and go to state 8
 
 
 state 8
 
-    (5) imprimir_instr -> PRINTLN ADMIR PARIZQ . expresion_numerica PARDER PTCOMA
-    (6) expresion_numerica -> . expresion_numerica MAS expresion_numerica
-    (7) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
-    (8) expresion_numerica -> . expresion_numerica POR expresion_numerica
-    (9) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
-    (10) expresion_numerica -> . MENOS expresion_numerica
-    (11) expresion_numerica -> . PARIZQ expresion_numerica PARDER
-    (12) expresion_numerica -> . ENTERO
-    (13) expresion_numerica -> . DECIMAL
+    (5) imprimir_instr -> PRINTLN ADMIR PARIZQ . CADENA PARDER PTCOMA
+    (6) imprimir_instr -> PRINTLN ADMIR PARIZQ . CADENA pparam PARDER PTCOMA
 
-    MENOS           shift and go to state 11
-    PARIZQ          shift and go to state 9
-    ENTERO          shift and go to state 12
-    DECIMAL         shift and go to state 13
+    CADENA          shift and go to state 9
 
-    expresion_numerica             shift and go to state 10
 
 state 9
 
-    (11) expresion_numerica -> PARIZQ . expresion_numerica PARDER
-    (6) expresion_numerica -> . expresion_numerica MAS expresion_numerica
-    (7) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
-    (8) expresion_numerica -> . expresion_numerica POR expresion_numerica
-    (9) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
-    (10) expresion_numerica -> . MENOS expresion_numerica
-    (11) expresion_numerica -> . PARIZQ expresion_numerica PARDER
-    (12) expresion_numerica -> . ENTERO
-    (13) expresion_numerica -> . DECIMAL
+    (5) imprimir_instr -> PRINTLN ADMIR PARIZQ CADENA . PARDER PTCOMA
+    (6) imprimir_instr -> PRINTLN ADMIR PARIZQ CADENA . pparam PARDER PTCOMA
+    (7) pparam -> . pparam COMA expresion_cadena
+    (8) pparam -> . pparam COMA expresion_numerica
+    (9) pparam -> . pparam COMA expresion_booleana
+    (10) pparam -> . COMA expresion_cadena
+    (11) pparam -> . COMA expresion_numerica
+    (12) pparam -> . COMA expresion_booleana
 
-    MENOS           shift and go to state 11
-    PARIZQ          shift and go to state 9
-    ENTERO          shift and go to state 12
-    DECIMAL         shift and go to state 13
+    PARDER          shift and go to state 10
+    COMA            shift and go to state 12
 
-    expresion_numerica             shift and go to state 14
+    pparam                         shift and go to state 11
 
 state 10
 
-    (5) imprimir_instr -> PRINTLN ADMIR PARIZQ expresion_numerica . PARDER PTCOMA
-    (6) expresion_numerica -> expresion_numerica . MAS expresion_numerica
-    (7) expresion_numerica -> expresion_numerica . MENOS expresion_numerica
-    (8) expresion_numerica -> expresion_numerica . POR expresion_numerica
-    (9) expresion_numerica -> expresion_numerica . DIVIDIDO expresion_numerica
+    (5) imprimir_instr -> PRINTLN ADMIR PARIZQ CADENA PARDER . PTCOMA
 
-    PARDER          shift and go to state 15
-    MAS             shift and go to state 16
-    MENOS           shift and go to state 17
-    POR             shift and go to state 18
-    DIVIDIDO        shift and go to state 19
+    PTCOMA          shift and go to state 13
 
 
 state 11
 
-    (10) expresion_numerica -> MENOS . expresion_numerica
-    (6) expresion_numerica -> . expresion_numerica MAS expresion_numerica
-    (7) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
-    (8) expresion_numerica -> . expresion_numerica POR expresion_numerica
-    (9) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
-    (10) expresion_numerica -> . MENOS expresion_numerica
-    (11) expresion_numerica -> . PARIZQ expresion_numerica PARDER
-    (12) expresion_numerica -> . ENTERO
-    (13) expresion_numerica -> . DECIMAL
+    (6) imprimir_instr -> PRINTLN ADMIR PARIZQ CADENA pparam . PARDER PTCOMA
+    (7) pparam -> pparam . COMA expresion_cadena
+    (8) pparam -> pparam . COMA expresion_numerica
+    (9) pparam -> pparam . COMA expresion_booleana
 
-    MENOS           shift and go to state 11
-    PARIZQ          shift and go to state 9
-    ENTERO          shift and go to state 12
-    DECIMAL         shift and go to state 13
+    PARDER          shift and go to state 14
+    COMA            shift and go to state 15
 
-    expresion_numerica             shift and go to state 20
 
 state 12
 
-    (12) expresion_numerica -> ENTERO .
+    (10) pparam -> COMA . expresion_cadena
+    (11) pparam -> COMA . expresion_numerica
+    (12) pparam -> COMA . expresion_booleana
+    (24) expresion_cadena -> . CADENA
+    (13) expresion_numerica -> . expresion_numerica MAS expresion_numerica
+    (14) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
+    (15) expresion_numerica -> . expresion_numerica POR expresion_numerica
+    (16) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> . expresion_numerica MODULO expresion_numerica
+    (18) expresion_numerica -> . INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (19) expresion_numerica -> . FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (20) expresion_numerica -> . MENOS expresion_numerica
+    (21) expresion_numerica -> . PARIZQ expresion_numerica PARDER
+    (22) expresion_numerica -> . ENTERO
+    (23) expresion_numerica -> . DECIMAL
+    (25) expresion_booleana -> . TRUE
+    (26) expresion_booleana -> . FALSE
+    (27) expresion_booleana -> . expresion_cadena
+    (28) expresion_booleana -> . expresion_numerica
+    (29) expresion_booleana -> . PARIZQ expresion_booleana PARDER
+    (30) expresion_booleana -> . expresion_booleana MAYQUE expresion_booleana
+    (31) expresion_booleana -> . expresion_booleana MENQUE expresion_booleana
+    (32) expresion_booleana -> . expresion_booleana IGUALQUE expresion_booleana
+    (33) expresion_booleana -> . expresion_booleana NIGUALQUE expresion_booleana
 
-    PARDER          reduce using rule 12 (expresion_numerica -> ENTERO .)
-    MAS             reduce using rule 12 (expresion_numerica -> ENTERO .)
-    MENOS           reduce using rule 12 (expresion_numerica -> ENTERO .)
-    POR             reduce using rule 12 (expresion_numerica -> ENTERO .)
-    DIVIDIDO        reduce using rule 12 (expresion_numerica -> ENTERO .)
+    CADENA          shift and go to state 19
+    INT             shift and go to state 21
+    FLOAT           shift and go to state 23
+    MENOS           shift and go to state 20
+    PARIZQ          shift and go to state 22
+    ENTERO          shift and go to state 24
+    DECIMAL         shift and go to state 25
+    TRUE            shift and go to state 26
+    FALSE           shift and go to state 27
 
+    expresion_cadena               shift and go to state 16
+    expresion_numerica             shift and go to state 17
+    expresion_booleana             shift and go to state 18
 
 state 13
 
-    (13) expresion_numerica -> DECIMAL .
+    (5) imprimir_instr -> PRINTLN ADMIR PARIZQ CADENA PARDER PTCOMA .
 
-    PARDER          reduce using rule 13 (expresion_numerica -> DECIMAL .)
-    MAS             reduce using rule 13 (expresion_numerica -> DECIMAL .)
-    MENOS           reduce using rule 13 (expresion_numerica -> DECIMAL .)
-    POR             reduce using rule 13 (expresion_numerica -> DECIMAL .)
-    DIVIDIDO        reduce using rule 13 (expresion_numerica -> DECIMAL .)
+    PRINTLN         reduce using rule 5 (imprimir_instr -> PRINTLN ADMIR PARIZQ CADENA PARDER PTCOMA .)
+    $end            reduce using rule 5 (imprimir_instr -> PRINTLN ADMIR PARIZQ CADENA PARDER PTCOMA .)
 
 
 state 14
 
-    (11) expresion_numerica -> PARIZQ expresion_numerica . PARDER
-    (6) expresion_numerica -> expresion_numerica . MAS expresion_numerica
-    (7) expresion_numerica -> expresion_numerica . MENOS expresion_numerica
-    (8) expresion_numerica -> expresion_numerica . POR expresion_numerica
-    (9) expresion_numerica -> expresion_numerica . DIVIDIDO expresion_numerica
+    (6) imprimir_instr -> PRINTLN ADMIR PARIZQ CADENA pparam PARDER . PTCOMA
 
-    PARDER          shift and go to state 21
-    MAS             shift and go to state 16
-    MENOS           shift and go to state 17
-    POR             shift and go to state 18
-    DIVIDIDO        shift and go to state 19
+    PTCOMA          shift and go to state 28
 
 
 state 15
 
-    (5) imprimir_instr -> PRINTLN ADMIR PARIZQ expresion_numerica PARDER . PTCOMA
+    (7) pparam -> pparam COMA . expresion_cadena
+    (8) pparam -> pparam COMA . expresion_numerica
+    (9) pparam -> pparam COMA . expresion_booleana
+    (24) expresion_cadena -> . CADENA
+    (13) expresion_numerica -> . expresion_numerica MAS expresion_numerica
+    (14) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
+    (15) expresion_numerica -> . expresion_numerica POR expresion_numerica
+    (16) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> . expresion_numerica MODULO expresion_numerica
+    (18) expresion_numerica -> . INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (19) expresion_numerica -> . FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (20) expresion_numerica -> . MENOS expresion_numerica
+    (21) expresion_numerica -> . PARIZQ expresion_numerica PARDER
+    (22) expresion_numerica -> . ENTERO
+    (23) expresion_numerica -> . DECIMAL
+    (25) expresion_booleana -> . TRUE
+    (26) expresion_booleana -> . FALSE
+    (27) expresion_booleana -> . expresion_cadena
+    (28) expresion_booleana -> . expresion_numerica
+    (29) expresion_booleana -> . PARIZQ expresion_booleana PARDER
+    (30) expresion_booleana -> . expresion_booleana MAYQUE expresion_booleana
+    (31) expresion_booleana -> . expresion_booleana MENQUE expresion_booleana
+    (32) expresion_booleana -> . expresion_booleana IGUALQUE expresion_booleana
+    (33) expresion_booleana -> . expresion_booleana NIGUALQUE expresion_booleana
 
-    PTCOMA          shift and go to state 22
+    CADENA          shift and go to state 19
+    INT             shift and go to state 21
+    FLOAT           shift and go to state 23
+    MENOS           shift and go to state 20
+    PARIZQ          shift and go to state 22
+    ENTERO          shift and go to state 24
+    DECIMAL         shift and go to state 25
+    TRUE            shift and go to state 26
+    FALSE           shift and go to state 27
 
+    expresion_cadena               shift and go to state 29
+    expresion_numerica             shift and go to state 30
+    expresion_booleana             shift and go to state 31
 
 state 16
 
-    (6) expresion_numerica -> expresion_numerica MAS . expresion_numerica
-    (6) expresion_numerica -> . expresion_numerica MAS expresion_numerica
-    (7) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
-    (8) expresion_numerica -> . expresion_numerica POR expresion_numerica
-    (9) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
-    (10) expresion_numerica -> . MENOS expresion_numerica
-    (11) expresion_numerica -> . PARIZQ expresion_numerica PARDER
-    (12) expresion_numerica -> . ENTERO
-    (13) expresion_numerica -> . DECIMAL
+    (10) pparam -> COMA expresion_cadena .
+    (27) expresion_booleana -> expresion_cadena .
 
-    MENOS           shift and go to state 11
-    PARIZQ          shift and go to state 9
-    ENTERO          shift and go to state 12
-    DECIMAL         shift and go to state 13
+  ! reduce/reduce conflict for PARDER resolved using rule 10 (pparam -> COMA expresion_cadena .)
+  ! reduce/reduce conflict for COMA resolved using rule 10 (pparam -> COMA expresion_cadena .)
+    PARDER          reduce using rule 10 (pparam -> COMA expresion_cadena .)
+    COMA            reduce using rule 10 (pparam -> COMA expresion_cadena .)
+    MAYQUE          reduce using rule 27 (expresion_booleana -> expresion_cadena .)
+    MENQUE          reduce using rule 27 (expresion_booleana -> expresion_cadena .)
+    IGUALQUE        reduce using rule 27 (expresion_booleana -> expresion_cadena .)
+    NIGUALQUE       reduce using rule 27 (expresion_booleana -> expresion_cadena .)
 
-    expresion_numerica             shift and go to state 23
+  ! PARDER          [ reduce using rule 27 (expresion_booleana -> expresion_cadena .) ]
+  ! COMA            [ reduce using rule 27 (expresion_booleana -> expresion_cadena .) ]
+
 
 state 17
 
-    (7) expresion_numerica -> expresion_numerica MENOS . expresion_numerica
-    (6) expresion_numerica -> . expresion_numerica MAS expresion_numerica
-    (7) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
-    (8) expresion_numerica -> . expresion_numerica POR expresion_numerica
-    (9) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
-    (10) expresion_numerica -> . MENOS expresion_numerica
-    (11) expresion_numerica -> . PARIZQ expresion_numerica PARDER
-    (12) expresion_numerica -> . ENTERO
-    (13) expresion_numerica -> . DECIMAL
+    (11) pparam -> COMA expresion_numerica .
+    (13) expresion_numerica -> expresion_numerica . MAS expresion_numerica
+    (14) expresion_numerica -> expresion_numerica . MENOS expresion_numerica
+    (15) expresion_numerica -> expresion_numerica . POR expresion_numerica
+    (16) expresion_numerica -> expresion_numerica . DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> expresion_numerica . MODULO expresion_numerica
+    (28) expresion_booleana -> expresion_numerica .
 
-    MENOS           shift and go to state 11
-    PARIZQ          shift and go to state 9
-    ENTERO          shift and go to state 12
-    DECIMAL         shift and go to state 13
+  ! reduce/reduce conflict for PARDER resolved using rule 11 (pparam -> COMA expresion_numerica .)
+  ! reduce/reduce conflict for COMA resolved using rule 11 (pparam -> COMA expresion_numerica .)
+    PARDER          reduce using rule 11 (pparam -> COMA expresion_numerica .)
+    COMA            reduce using rule 11 (pparam -> COMA expresion_numerica .)
+    MAS             shift and go to state 32
+    MENOS           shift and go to state 33
+    POR             shift and go to state 34
+    DIVIDIDO        shift and go to state 35
+    MODULO          shift and go to state 36
+    MAYQUE          reduce using rule 28 (expresion_booleana -> expresion_numerica .)
+    MENQUE          reduce using rule 28 (expresion_booleana -> expresion_numerica .)
+    IGUALQUE        reduce using rule 28 (expresion_booleana -> expresion_numerica .)
+    NIGUALQUE       reduce using rule 28 (expresion_booleana -> expresion_numerica .)
 
-    expresion_numerica             shift and go to state 24
+  ! PARDER          [ reduce using rule 28 (expresion_booleana -> expresion_numerica .) ]
+  ! COMA            [ reduce using rule 28 (expresion_booleana -> expresion_numerica .) ]
+
 
 state 18
 
-    (8) expresion_numerica -> expresion_numerica POR . expresion_numerica
-    (6) expresion_numerica -> . expresion_numerica MAS expresion_numerica
-    (7) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
-    (8) expresion_numerica -> . expresion_numerica POR expresion_numerica
-    (9) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
-    (10) expresion_numerica -> . MENOS expresion_numerica
-    (11) expresion_numerica -> . PARIZQ expresion_numerica PARDER
-    (12) expresion_numerica -> . ENTERO
-    (13) expresion_numerica -> . DECIMAL
+    (12) pparam -> COMA expresion_booleana .
+    (30) expresion_booleana -> expresion_booleana . MAYQUE expresion_booleana
+    (31) expresion_booleana -> expresion_booleana . MENQUE expresion_booleana
+    (32) expresion_booleana -> expresion_booleana . IGUALQUE expresion_booleana
+    (33) expresion_booleana -> expresion_booleana . NIGUALQUE expresion_booleana
 
-    MENOS           shift and go to state 11
-    PARIZQ          shift and go to state 9
-    ENTERO          shift and go to state 12
-    DECIMAL         shift and go to state 13
+    PARDER          reduce using rule 12 (pparam -> COMA expresion_booleana .)
+    COMA            reduce using rule 12 (pparam -> COMA expresion_booleana .)
+    MAYQUE          shift and go to state 37
+    MENQUE          shift and go to state 38
+    IGUALQUE        shift and go to state 39
+    NIGUALQUE       shift and go to state 40
 
-    expresion_numerica             shift and go to state 25
 
 state 19
 
-    (9) expresion_numerica -> expresion_numerica DIVIDIDO . expresion_numerica
-    (6) expresion_numerica -> . expresion_numerica MAS expresion_numerica
-    (7) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
-    (8) expresion_numerica -> . expresion_numerica POR expresion_numerica
-    (9) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
-    (10) expresion_numerica -> . MENOS expresion_numerica
-    (11) expresion_numerica -> . PARIZQ expresion_numerica PARDER
-    (12) expresion_numerica -> . ENTERO
-    (13) expresion_numerica -> . DECIMAL
+    (24) expresion_cadena -> CADENA .
 
-    MENOS           shift and go to state 11
-    PARIZQ          shift and go to state 9
-    ENTERO          shift and go to state 12
-    DECIMAL         shift and go to state 13
+    PARDER          reduce using rule 24 (expresion_cadena -> CADENA .)
+    COMA            reduce using rule 24 (expresion_cadena -> CADENA .)
+    MAYQUE          reduce using rule 24 (expresion_cadena -> CADENA .)
+    MENQUE          reduce using rule 24 (expresion_cadena -> CADENA .)
+    IGUALQUE        reduce using rule 24 (expresion_cadena -> CADENA .)
+    NIGUALQUE       reduce using rule 24 (expresion_cadena -> CADENA .)
 
-    expresion_numerica             shift and go to state 26
 
 state 20
 
-    (10) expresion_numerica -> MENOS expresion_numerica .
-    (6) expresion_numerica -> expresion_numerica . MAS expresion_numerica
-    (7) expresion_numerica -> expresion_numerica . MENOS expresion_numerica
-    (8) expresion_numerica -> expresion_numerica . POR expresion_numerica
-    (9) expresion_numerica -> expresion_numerica . DIVIDIDO expresion_numerica
+    (20) expresion_numerica -> MENOS . expresion_numerica
+    (13) expresion_numerica -> . expresion_numerica MAS expresion_numerica
+    (14) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
+    (15) expresion_numerica -> . expresion_numerica POR expresion_numerica
+    (16) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> . expresion_numerica MODULO expresion_numerica
+    (18) expresion_numerica -> . INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (19) expresion_numerica -> . FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (20) expresion_numerica -> . MENOS expresion_numerica
+    (21) expresion_numerica -> . PARIZQ expresion_numerica PARDER
+    (22) expresion_numerica -> . ENTERO
+    (23) expresion_numerica -> . DECIMAL
 
-    PARDER          reduce using rule 10 (expresion_numerica -> MENOS expresion_numerica .)
-    MAS             reduce using rule 10 (expresion_numerica -> MENOS expresion_numerica .)
-    MENOS           reduce using rule 10 (expresion_numerica -> MENOS expresion_numerica .)
-    POR             reduce using rule 10 (expresion_numerica -> MENOS expresion_numerica .)
-    DIVIDIDO        reduce using rule 10 (expresion_numerica -> MENOS expresion_numerica .)
+    INT             shift and go to state 21
+    FLOAT           shift and go to state 23
+    MENOS           shift and go to state 20
+    PARIZQ          shift and go to state 42
+    ENTERO          shift and go to state 24
+    DECIMAL         shift and go to state 25
 
-  ! MAS             [ shift and go to state 16 ]
-  ! MENOS           [ shift and go to state 17 ]
-  ! POR             [ shift and go to state 18 ]
-  ! DIVIDIDO        [ shift and go to state 19 ]
-
+    expresion_numerica             shift and go to state 41
 
 state 21
 
-    (11) expresion_numerica -> PARIZQ expresion_numerica PARDER .
+    (18) expresion_numerica -> INT . DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER
 
-    PARDER          reduce using rule 11 (expresion_numerica -> PARIZQ expresion_numerica PARDER .)
-    MAS             reduce using rule 11 (expresion_numerica -> PARIZQ expresion_numerica PARDER .)
-    MENOS           reduce using rule 11 (expresion_numerica -> PARIZQ expresion_numerica PARDER .)
-    POR             reduce using rule 11 (expresion_numerica -> PARIZQ expresion_numerica PARDER .)
-    DIVIDIDO        reduce using rule 11 (expresion_numerica -> PARIZQ expresion_numerica PARDER .)
+    DOSPUNTOS       shift and go to state 43
 
 
 state 22
 
-    (5) imprimir_instr -> PRINTLN ADMIR PARIZQ expresion_numerica PARDER PTCOMA .
+    (21) expresion_numerica -> PARIZQ . expresion_numerica PARDER
+    (29) expresion_booleana -> PARIZQ . expresion_booleana PARDER
+    (13) expresion_numerica -> . expresion_numerica MAS expresion_numerica
+    (14) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
+    (15) expresion_numerica -> . expresion_numerica POR expresion_numerica
+    (16) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> . expresion_numerica MODULO expresion_numerica
+    (18) expresion_numerica -> . INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (19) expresion_numerica -> . FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (20) expresion_numerica -> . MENOS expresion_numerica
+    (21) expresion_numerica -> . PARIZQ expresion_numerica PARDER
+    (22) expresion_numerica -> . ENTERO
+    (23) expresion_numerica -> . DECIMAL
+    (25) expresion_booleana -> . TRUE
+    (26) expresion_booleana -> . FALSE
+    (27) expresion_booleana -> . expresion_cadena
+    (28) expresion_booleana -> . expresion_numerica
+    (29) expresion_booleana -> . PARIZQ expresion_booleana PARDER
+    (30) expresion_booleana -> . expresion_booleana MAYQUE expresion_booleana
+    (31) expresion_booleana -> . expresion_booleana MENQUE expresion_booleana
+    (32) expresion_booleana -> . expresion_booleana IGUALQUE expresion_booleana
+    (33) expresion_booleana -> . expresion_booleana NIGUALQUE expresion_booleana
+    (24) expresion_cadena -> . CADENA
 
-    PRINTLN         reduce using rule 5 (imprimir_instr -> PRINTLN ADMIR PARIZQ expresion_numerica PARDER PTCOMA .)
-    $end            reduce using rule 5 (imprimir_instr -> PRINTLN ADMIR PARIZQ expresion_numerica PARDER PTCOMA .)
+    INT             shift and go to state 21
+    FLOAT           shift and go to state 23
+    MENOS           shift and go to state 20
+    PARIZQ          shift and go to state 22
+    ENTERO          shift and go to state 24
+    DECIMAL         shift and go to state 25
+    TRUE            shift and go to state 26
+    FALSE           shift and go to state 27
+    CADENA          shift and go to state 19
 
+    expresion_numerica             shift and go to state 44
+    expresion_booleana             shift and go to state 45
+    expresion_cadena               shift and go to state 46
 
 state 23
 
-    (6) expresion_numerica -> expresion_numerica MAS expresion_numerica .
-    (6) expresion_numerica -> expresion_numerica . MAS expresion_numerica
-    (7) expresion_numerica -> expresion_numerica . MENOS expresion_numerica
-    (8) expresion_numerica -> expresion_numerica . POR expresion_numerica
-    (9) expresion_numerica -> expresion_numerica . DIVIDIDO expresion_numerica
+    (19) expresion_numerica -> FLOAT . DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER
 
-    PARDER          reduce using rule 6 (expresion_numerica -> expresion_numerica MAS expresion_numerica .)
-    MAS             reduce using rule 6 (expresion_numerica -> expresion_numerica MAS expresion_numerica .)
-    MENOS           reduce using rule 6 (expresion_numerica -> expresion_numerica MAS expresion_numerica .)
-    POR             shift and go to state 18
-    DIVIDIDO        shift and go to state 19
-
-  ! POR             [ reduce using rule 6 (expresion_numerica -> expresion_numerica MAS expresion_numerica .) ]
-  ! DIVIDIDO        [ reduce using rule 6 (expresion_numerica -> expresion_numerica MAS expresion_numerica .) ]
-  ! MAS             [ shift and go to state 16 ]
-  ! MENOS           [ shift and go to state 17 ]
+    DOSPUNTOS       shift and go to state 47
 
 
 state 24
 
-    (7) expresion_numerica -> expresion_numerica MENOS expresion_numerica .
-    (6) expresion_numerica -> expresion_numerica . MAS expresion_numerica
-    (7) expresion_numerica -> expresion_numerica . MENOS expresion_numerica
-    (8) expresion_numerica -> expresion_numerica . POR expresion_numerica
-    (9) expresion_numerica -> expresion_numerica . DIVIDIDO expresion_numerica
+    (22) expresion_numerica -> ENTERO .
 
-    PARDER          reduce using rule 7 (expresion_numerica -> expresion_numerica MENOS expresion_numerica .)
-    MAS             reduce using rule 7 (expresion_numerica -> expresion_numerica MENOS expresion_numerica .)
-    MENOS           reduce using rule 7 (expresion_numerica -> expresion_numerica MENOS expresion_numerica .)
-    POR             shift and go to state 18
-    DIVIDIDO        shift and go to state 19
-
-  ! POR             [ reduce using rule 7 (expresion_numerica -> expresion_numerica MENOS expresion_numerica .) ]
-  ! DIVIDIDO        [ reduce using rule 7 (expresion_numerica -> expresion_numerica MENOS expresion_numerica .) ]
-  ! MAS             [ shift and go to state 16 ]
-  ! MENOS           [ shift and go to state 17 ]
+    MAS             reduce using rule 22 (expresion_numerica -> ENTERO .)
+    MENOS           reduce using rule 22 (expresion_numerica -> ENTERO .)
+    POR             reduce using rule 22 (expresion_numerica -> ENTERO .)
+    DIVIDIDO        reduce using rule 22 (expresion_numerica -> ENTERO .)
+    MODULO          reduce using rule 22 (expresion_numerica -> ENTERO .)
+    PARDER          reduce using rule 22 (expresion_numerica -> ENTERO .)
+    COMA            reduce using rule 22 (expresion_numerica -> ENTERO .)
+    MAYQUE          reduce using rule 22 (expresion_numerica -> ENTERO .)
+    MENQUE          reduce using rule 22 (expresion_numerica -> ENTERO .)
+    IGUALQUE        reduce using rule 22 (expresion_numerica -> ENTERO .)
+    NIGUALQUE       reduce using rule 22 (expresion_numerica -> ENTERO .)
 
 
 state 25
 
-    (8) expresion_numerica -> expresion_numerica POR expresion_numerica .
-    (6) expresion_numerica -> expresion_numerica . MAS expresion_numerica
-    (7) expresion_numerica -> expresion_numerica . MENOS expresion_numerica
-    (8) expresion_numerica -> expresion_numerica . POR expresion_numerica
-    (9) expresion_numerica -> expresion_numerica . DIVIDIDO expresion_numerica
+    (23) expresion_numerica -> DECIMAL .
 
-    PARDER          reduce using rule 8 (expresion_numerica -> expresion_numerica POR expresion_numerica .)
-    MAS             reduce using rule 8 (expresion_numerica -> expresion_numerica POR expresion_numerica .)
-    MENOS           reduce using rule 8 (expresion_numerica -> expresion_numerica POR expresion_numerica .)
-    POR             reduce using rule 8 (expresion_numerica -> expresion_numerica POR expresion_numerica .)
-    DIVIDIDO        reduce using rule 8 (expresion_numerica -> expresion_numerica POR expresion_numerica .)
-
-  ! MAS             [ shift and go to state 16 ]
-  ! MENOS           [ shift and go to state 17 ]
-  ! POR             [ shift and go to state 18 ]
-  ! DIVIDIDO        [ shift and go to state 19 ]
+    MAS             reduce using rule 23 (expresion_numerica -> DECIMAL .)
+    MENOS           reduce using rule 23 (expresion_numerica -> DECIMAL .)
+    POR             reduce using rule 23 (expresion_numerica -> DECIMAL .)
+    DIVIDIDO        reduce using rule 23 (expresion_numerica -> DECIMAL .)
+    MODULO          reduce using rule 23 (expresion_numerica -> DECIMAL .)
+    PARDER          reduce using rule 23 (expresion_numerica -> DECIMAL .)
+    COMA            reduce using rule 23 (expresion_numerica -> DECIMAL .)
+    MAYQUE          reduce using rule 23 (expresion_numerica -> DECIMAL .)
+    MENQUE          reduce using rule 23 (expresion_numerica -> DECIMAL .)
+    IGUALQUE        reduce using rule 23 (expresion_numerica -> DECIMAL .)
+    NIGUALQUE       reduce using rule 23 (expresion_numerica -> DECIMAL .)
 
 
 state 26
 
-    (9) expresion_numerica -> expresion_numerica DIVIDIDO expresion_numerica .
-    (6) expresion_numerica -> expresion_numerica . MAS expresion_numerica
-    (7) expresion_numerica -> expresion_numerica . MENOS expresion_numerica
-    (8) expresion_numerica -> expresion_numerica . POR expresion_numerica
-    (9) expresion_numerica -> expresion_numerica . DIVIDIDO expresion_numerica
+    (25) expresion_booleana -> TRUE .
 
-    PARDER          reduce using rule 9 (expresion_numerica -> expresion_numerica DIVIDIDO expresion_numerica .)
-    MAS             reduce using rule 9 (expresion_numerica -> expresion_numerica DIVIDIDO expresion_numerica .)
-    MENOS           reduce using rule 9 (expresion_numerica -> expresion_numerica DIVIDIDO expresion_numerica .)
-    POR             reduce using rule 9 (expresion_numerica -> expresion_numerica DIVIDIDO expresion_numerica .)
-    DIVIDIDO        reduce using rule 9 (expresion_numerica -> expresion_numerica DIVIDIDO expresion_numerica .)
+    MAYQUE          reduce using rule 25 (expresion_booleana -> TRUE .)
+    MENQUE          reduce using rule 25 (expresion_booleana -> TRUE .)
+    IGUALQUE        reduce using rule 25 (expresion_booleana -> TRUE .)
+    NIGUALQUE       reduce using rule 25 (expresion_booleana -> TRUE .)
+    PARDER          reduce using rule 25 (expresion_booleana -> TRUE .)
+    COMA            reduce using rule 25 (expresion_booleana -> TRUE .)
 
-  ! MAS             [ shift and go to state 16 ]
-  ! MENOS           [ shift and go to state 17 ]
-  ! POR             [ shift and go to state 18 ]
-  ! DIVIDIDO        [ shift and go to state 19 ]
 
+state 27
+
+    (26) expresion_booleana -> FALSE .
+
+    MAYQUE          reduce using rule 26 (expresion_booleana -> FALSE .)
+    MENQUE          reduce using rule 26 (expresion_booleana -> FALSE .)
+    IGUALQUE        reduce using rule 26 (expresion_booleana -> FALSE .)
+    NIGUALQUE       reduce using rule 26 (expresion_booleana -> FALSE .)
+    PARDER          reduce using rule 26 (expresion_booleana -> FALSE .)
+    COMA            reduce using rule 26 (expresion_booleana -> FALSE .)
+
+
+state 28
+
+    (6) imprimir_instr -> PRINTLN ADMIR PARIZQ CADENA pparam PARDER PTCOMA .
+
+    PRINTLN         reduce using rule 6 (imprimir_instr -> PRINTLN ADMIR PARIZQ CADENA pparam PARDER PTCOMA .)
+    $end            reduce using rule 6 (imprimir_instr -> PRINTLN ADMIR PARIZQ CADENA pparam PARDER PTCOMA .)
+
+
+state 29
+
+    (7) pparam -> pparam COMA expresion_cadena .
+    (27) expresion_booleana -> expresion_cadena .
+
+  ! reduce/reduce conflict for PARDER resolved using rule 7 (pparam -> pparam COMA expresion_cadena .)
+  ! reduce/reduce conflict for COMA resolved using rule 7 (pparam -> pparam COMA expresion_cadena .)
+    PARDER          reduce using rule 7 (pparam -> pparam COMA expresion_cadena .)
+    COMA            reduce using rule 7 (pparam -> pparam COMA expresion_cadena .)
+    MAYQUE          reduce using rule 27 (expresion_booleana -> expresion_cadena .)
+    MENQUE          reduce using rule 27 (expresion_booleana -> expresion_cadena .)
+    IGUALQUE        reduce using rule 27 (expresion_booleana -> expresion_cadena .)
+    NIGUALQUE       reduce using rule 27 (expresion_booleana -> expresion_cadena .)
+
+  ! PARDER          [ reduce using rule 27 (expresion_booleana -> expresion_cadena .) ]
+  ! COMA            [ reduce using rule 27 (expresion_booleana -> expresion_cadena .) ]
+
+
+state 30
+
+    (8) pparam -> pparam COMA expresion_numerica .
+    (13) expresion_numerica -> expresion_numerica . MAS expresion_numerica
+    (14) expresion_numerica -> expresion_numerica . MENOS expresion_numerica
+    (15) expresion_numerica -> expresion_numerica . POR expresion_numerica
+    (16) expresion_numerica -> expresion_numerica . DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> expresion_numerica . MODULO expresion_numerica
+    (28) expresion_booleana -> expresion_numerica .
+
+  ! reduce/reduce conflict for PARDER resolved using rule 8 (pparam -> pparam COMA expresion_numerica .)
+  ! reduce/reduce conflict for COMA resolved using rule 8 (pparam -> pparam COMA expresion_numerica .)
+    PARDER          reduce using rule 8 (pparam -> pparam COMA expresion_numerica .)
+    COMA            reduce using rule 8 (pparam -> pparam COMA expresion_numerica .)
+    MAS             shift and go to state 32
+    MENOS           shift and go to state 33
+    POR             shift and go to state 34
+    DIVIDIDO        shift and go to state 35
+    MODULO          shift and go to state 36
+    MAYQUE          reduce using rule 28 (expresion_booleana -> expresion_numerica .)
+    MENQUE          reduce using rule 28 (expresion_booleana -> expresion_numerica .)
+    IGUALQUE        reduce using rule 28 (expresion_booleana -> expresion_numerica .)
+    NIGUALQUE       reduce using rule 28 (expresion_booleana -> expresion_numerica .)
+
+  ! PARDER          [ reduce using rule 28 (expresion_booleana -> expresion_numerica .) ]
+  ! COMA            [ reduce using rule 28 (expresion_booleana -> expresion_numerica .) ]
+
+
+state 31
+
+    (9) pparam -> pparam COMA expresion_booleana .
+    (30) expresion_booleana -> expresion_booleana . MAYQUE expresion_booleana
+    (31) expresion_booleana -> expresion_booleana . MENQUE expresion_booleana
+    (32) expresion_booleana -> expresion_booleana . IGUALQUE expresion_booleana
+    (33) expresion_booleana -> expresion_booleana . NIGUALQUE expresion_booleana
+
+    PARDER          reduce using rule 9 (pparam -> pparam COMA expresion_booleana .)
+    COMA            reduce using rule 9 (pparam -> pparam COMA expresion_booleana .)
+    MAYQUE          shift and go to state 37
+    MENQUE          shift and go to state 38
+    IGUALQUE        shift and go to state 39
+    NIGUALQUE       shift and go to state 40
+
+
+state 32
+
+    (13) expresion_numerica -> expresion_numerica MAS . expresion_numerica
+    (13) expresion_numerica -> . expresion_numerica MAS expresion_numerica
+    (14) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
+    (15) expresion_numerica -> . expresion_numerica POR expresion_numerica
+    (16) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> . expresion_numerica MODULO expresion_numerica
+    (18) expresion_numerica -> . INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (19) expresion_numerica -> . FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (20) expresion_numerica -> . MENOS expresion_numerica
+    (21) expresion_numerica -> . PARIZQ expresion_numerica PARDER
+    (22) expresion_numerica -> . ENTERO
+    (23) expresion_numerica -> . DECIMAL
+
+    INT             shift and go to state 21
+    FLOAT           shift and go to state 23
+    MENOS           shift and go to state 20
+    PARIZQ          shift and go to state 42
+    ENTERO          shift and go to state 24
+    DECIMAL         shift and go to state 25
+
+    expresion_numerica             shift and go to state 48
+
+state 33
+
+    (14) expresion_numerica -> expresion_numerica MENOS . expresion_numerica
+    (13) expresion_numerica -> . expresion_numerica MAS expresion_numerica
+    (14) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
+    (15) expresion_numerica -> . expresion_numerica POR expresion_numerica
+    (16) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> . expresion_numerica MODULO expresion_numerica
+    (18) expresion_numerica -> . INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (19) expresion_numerica -> . FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (20) expresion_numerica -> . MENOS expresion_numerica
+    (21) expresion_numerica -> . PARIZQ expresion_numerica PARDER
+    (22) expresion_numerica -> . ENTERO
+    (23) expresion_numerica -> . DECIMAL
+
+    INT             shift and go to state 21
+    FLOAT           shift and go to state 23
+    MENOS           shift and go to state 20
+    PARIZQ          shift and go to state 42
+    ENTERO          shift and go to state 24
+    DECIMAL         shift and go to state 25
+
+    expresion_numerica             shift and go to state 49
+
+state 34
+
+    (15) expresion_numerica -> expresion_numerica POR . expresion_numerica
+    (13) expresion_numerica -> . expresion_numerica MAS expresion_numerica
+    (14) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
+    (15) expresion_numerica -> . expresion_numerica POR expresion_numerica
+    (16) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> . expresion_numerica MODULO expresion_numerica
+    (18) expresion_numerica -> . INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (19) expresion_numerica -> . FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (20) expresion_numerica -> . MENOS expresion_numerica
+    (21) expresion_numerica -> . PARIZQ expresion_numerica PARDER
+    (22) expresion_numerica -> . ENTERO
+    (23) expresion_numerica -> . DECIMAL
+
+    INT             shift and go to state 21
+    FLOAT           shift and go to state 23
+    MENOS           shift and go to state 20
+    PARIZQ          shift and go to state 42
+    ENTERO          shift and go to state 24
+    DECIMAL         shift and go to state 25
+
+    expresion_numerica             shift and go to state 50
+
+state 35
+
+    (16) expresion_numerica -> expresion_numerica DIVIDIDO . expresion_numerica
+    (13) expresion_numerica -> . expresion_numerica MAS expresion_numerica
+    (14) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
+    (15) expresion_numerica -> . expresion_numerica POR expresion_numerica
+    (16) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> . expresion_numerica MODULO expresion_numerica
+    (18) expresion_numerica -> . INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (19) expresion_numerica -> . FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (20) expresion_numerica -> . MENOS expresion_numerica
+    (21) expresion_numerica -> . PARIZQ expresion_numerica PARDER
+    (22) expresion_numerica -> . ENTERO
+    (23) expresion_numerica -> . DECIMAL
+
+    INT             shift and go to state 21
+    FLOAT           shift and go to state 23
+    MENOS           shift and go to state 20
+    PARIZQ          shift and go to state 42
+    ENTERO          shift and go to state 24
+    DECIMAL         shift and go to state 25
+
+    expresion_numerica             shift and go to state 51
+
+state 36
+
+    (17) expresion_numerica -> expresion_numerica MODULO . expresion_numerica
+    (13) expresion_numerica -> . expresion_numerica MAS expresion_numerica
+    (14) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
+    (15) expresion_numerica -> . expresion_numerica POR expresion_numerica
+    (16) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> . expresion_numerica MODULO expresion_numerica
+    (18) expresion_numerica -> . INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (19) expresion_numerica -> . FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (20) expresion_numerica -> . MENOS expresion_numerica
+    (21) expresion_numerica -> . PARIZQ expresion_numerica PARDER
+    (22) expresion_numerica -> . ENTERO
+    (23) expresion_numerica -> . DECIMAL
+
+    INT             shift and go to state 21
+    FLOAT           shift and go to state 23
+    MENOS           shift and go to state 20
+    PARIZQ          shift and go to state 42
+    ENTERO          shift and go to state 24
+    DECIMAL         shift and go to state 25
+
+    expresion_numerica             shift and go to state 52
+
+state 37
+
+    (30) expresion_booleana -> expresion_booleana MAYQUE . expresion_booleana
+    (25) expresion_booleana -> . TRUE
+    (26) expresion_booleana -> . FALSE
+    (27) expresion_booleana -> . expresion_cadena
+    (28) expresion_booleana -> . expresion_numerica
+    (29) expresion_booleana -> . PARIZQ expresion_booleana PARDER
+    (30) expresion_booleana -> . expresion_booleana MAYQUE expresion_booleana
+    (31) expresion_booleana -> . expresion_booleana MENQUE expresion_booleana
+    (32) expresion_booleana -> . expresion_booleana IGUALQUE expresion_booleana
+    (33) expresion_booleana -> . expresion_booleana NIGUALQUE expresion_booleana
+    (24) expresion_cadena -> . CADENA
+    (13) expresion_numerica -> . expresion_numerica MAS expresion_numerica
+    (14) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
+    (15) expresion_numerica -> . expresion_numerica POR expresion_numerica
+    (16) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> . expresion_numerica MODULO expresion_numerica
+    (18) expresion_numerica -> . INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (19) expresion_numerica -> . FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (20) expresion_numerica -> . MENOS expresion_numerica
+    (21) expresion_numerica -> . PARIZQ expresion_numerica PARDER
+    (22) expresion_numerica -> . ENTERO
+    (23) expresion_numerica -> . DECIMAL
+
+    TRUE            shift and go to state 26
+    FALSE           shift and go to state 27
+    PARIZQ          shift and go to state 55
+    CADENA          shift and go to state 19
+    INT             shift and go to state 21
+    FLOAT           shift and go to state 23
+    MENOS           shift and go to state 20
+    ENTERO          shift and go to state 24
+    DECIMAL         shift and go to state 25
+
+    expresion_booleana             shift and go to state 53
+    expresion_cadena               shift and go to state 46
+    expresion_numerica             shift and go to state 54
+
+state 38
+
+    (31) expresion_booleana -> expresion_booleana MENQUE . expresion_booleana
+    (25) expresion_booleana -> . TRUE
+    (26) expresion_booleana -> . FALSE
+    (27) expresion_booleana -> . expresion_cadena
+    (28) expresion_booleana -> . expresion_numerica
+    (29) expresion_booleana -> . PARIZQ expresion_booleana PARDER
+    (30) expresion_booleana -> . expresion_booleana MAYQUE expresion_booleana
+    (31) expresion_booleana -> . expresion_booleana MENQUE expresion_booleana
+    (32) expresion_booleana -> . expresion_booleana IGUALQUE expresion_booleana
+    (33) expresion_booleana -> . expresion_booleana NIGUALQUE expresion_booleana
+    (24) expresion_cadena -> . CADENA
+    (13) expresion_numerica -> . expresion_numerica MAS expresion_numerica
+    (14) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
+    (15) expresion_numerica -> . expresion_numerica POR expresion_numerica
+    (16) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> . expresion_numerica MODULO expresion_numerica
+    (18) expresion_numerica -> . INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (19) expresion_numerica -> . FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (20) expresion_numerica -> . MENOS expresion_numerica
+    (21) expresion_numerica -> . PARIZQ expresion_numerica PARDER
+    (22) expresion_numerica -> . ENTERO
+    (23) expresion_numerica -> . DECIMAL
+
+    TRUE            shift and go to state 26
+    FALSE           shift and go to state 27
+    PARIZQ          shift and go to state 55
+    CADENA          shift and go to state 19
+    INT             shift and go to state 21
+    FLOAT           shift and go to state 23
+    MENOS           shift and go to state 20
+    ENTERO          shift and go to state 24
+    DECIMAL         shift and go to state 25
+
+    expresion_booleana             shift and go to state 56
+    expresion_cadena               shift and go to state 46
+    expresion_numerica             shift and go to state 54
+
+state 39
+
+    (32) expresion_booleana -> expresion_booleana IGUALQUE . expresion_booleana
+    (25) expresion_booleana -> . TRUE
+    (26) expresion_booleana -> . FALSE
+    (27) expresion_booleana -> . expresion_cadena
+    (28) expresion_booleana -> . expresion_numerica
+    (29) expresion_booleana -> . PARIZQ expresion_booleana PARDER
+    (30) expresion_booleana -> . expresion_booleana MAYQUE expresion_booleana
+    (31) expresion_booleana -> . expresion_booleana MENQUE expresion_booleana
+    (32) expresion_booleana -> . expresion_booleana IGUALQUE expresion_booleana
+    (33) expresion_booleana -> . expresion_booleana NIGUALQUE expresion_booleana
+    (24) expresion_cadena -> . CADENA
+    (13) expresion_numerica -> . expresion_numerica MAS expresion_numerica
+    (14) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
+    (15) expresion_numerica -> . expresion_numerica POR expresion_numerica
+    (16) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> . expresion_numerica MODULO expresion_numerica
+    (18) expresion_numerica -> . INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (19) expresion_numerica -> . FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (20) expresion_numerica -> . MENOS expresion_numerica
+    (21) expresion_numerica -> . PARIZQ expresion_numerica PARDER
+    (22) expresion_numerica -> . ENTERO
+    (23) expresion_numerica -> . DECIMAL
+
+    TRUE            shift and go to state 26
+    FALSE           shift and go to state 27
+    PARIZQ          shift and go to state 55
+    CADENA          shift and go to state 19
+    INT             shift and go to state 21
+    FLOAT           shift and go to state 23
+    MENOS           shift and go to state 20
+    ENTERO          shift and go to state 24
+    DECIMAL         shift and go to state 25
+
+    expresion_booleana             shift and go to state 57
+    expresion_cadena               shift and go to state 46
+    expresion_numerica             shift and go to state 54
+
+state 40
+
+    (33) expresion_booleana -> expresion_booleana NIGUALQUE . expresion_booleana
+    (25) expresion_booleana -> . TRUE
+    (26) expresion_booleana -> . FALSE
+    (27) expresion_booleana -> . expresion_cadena
+    (28) expresion_booleana -> . expresion_numerica
+    (29) expresion_booleana -> . PARIZQ expresion_booleana PARDER
+    (30) expresion_booleana -> . expresion_booleana MAYQUE expresion_booleana
+    (31) expresion_booleana -> . expresion_booleana MENQUE expresion_booleana
+    (32) expresion_booleana -> . expresion_booleana IGUALQUE expresion_booleana
+    (33) expresion_booleana -> . expresion_booleana NIGUALQUE expresion_booleana
+    (24) expresion_cadena -> . CADENA
+    (13) expresion_numerica -> . expresion_numerica MAS expresion_numerica
+    (14) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
+    (15) expresion_numerica -> . expresion_numerica POR expresion_numerica
+    (16) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> . expresion_numerica MODULO expresion_numerica
+    (18) expresion_numerica -> . INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (19) expresion_numerica -> . FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (20) expresion_numerica -> . MENOS expresion_numerica
+    (21) expresion_numerica -> . PARIZQ expresion_numerica PARDER
+    (22) expresion_numerica -> . ENTERO
+    (23) expresion_numerica -> . DECIMAL
+
+    TRUE            shift and go to state 26
+    FALSE           shift and go to state 27
+    PARIZQ          shift and go to state 55
+    CADENA          shift and go to state 19
+    INT             shift and go to state 21
+    FLOAT           shift and go to state 23
+    MENOS           shift and go to state 20
+    ENTERO          shift and go to state 24
+    DECIMAL         shift and go to state 25
+
+    expresion_booleana             shift and go to state 58
+    expresion_cadena               shift and go to state 46
+    expresion_numerica             shift and go to state 54
+
+state 41
+
+    (20) expresion_numerica -> MENOS expresion_numerica .
+    (13) expresion_numerica -> expresion_numerica . MAS expresion_numerica
+    (14) expresion_numerica -> expresion_numerica . MENOS expresion_numerica
+    (15) expresion_numerica -> expresion_numerica . POR expresion_numerica
+    (16) expresion_numerica -> expresion_numerica . DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> expresion_numerica . MODULO expresion_numerica
+
+    MAS             reduce using rule 20 (expresion_numerica -> MENOS expresion_numerica .)
+    MENOS           reduce using rule 20 (expresion_numerica -> MENOS expresion_numerica .)
+    POR             reduce using rule 20 (expresion_numerica -> MENOS expresion_numerica .)
+    DIVIDIDO        reduce using rule 20 (expresion_numerica -> MENOS expresion_numerica .)
+    MODULO          reduce using rule 20 (expresion_numerica -> MENOS expresion_numerica .)
+    PARDER          reduce using rule 20 (expresion_numerica -> MENOS expresion_numerica .)
+    COMA            reduce using rule 20 (expresion_numerica -> MENOS expresion_numerica .)
+    MAYQUE          reduce using rule 20 (expresion_numerica -> MENOS expresion_numerica .)
+    MENQUE          reduce using rule 20 (expresion_numerica -> MENOS expresion_numerica .)
+    IGUALQUE        reduce using rule 20 (expresion_numerica -> MENOS expresion_numerica .)
+    NIGUALQUE       reduce using rule 20 (expresion_numerica -> MENOS expresion_numerica .)
+
+  ! MAS             [ shift and go to state 32 ]
+  ! MENOS           [ shift and go to state 33 ]
+  ! POR             [ shift and go to state 34 ]
+  ! DIVIDIDO        [ shift and go to state 35 ]
+  ! MODULO          [ shift and go to state 36 ]
+
+
+state 42
+
+    (21) expresion_numerica -> PARIZQ . expresion_numerica PARDER
+    (13) expresion_numerica -> . expresion_numerica MAS expresion_numerica
+    (14) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
+    (15) expresion_numerica -> . expresion_numerica POR expresion_numerica
+    (16) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> . expresion_numerica MODULO expresion_numerica
+    (18) expresion_numerica -> . INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (19) expresion_numerica -> . FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (20) expresion_numerica -> . MENOS expresion_numerica
+    (21) expresion_numerica -> . PARIZQ expresion_numerica PARDER
+    (22) expresion_numerica -> . ENTERO
+    (23) expresion_numerica -> . DECIMAL
+
+    INT             shift and go to state 21
+    FLOAT           shift and go to state 23
+    MENOS           shift and go to state 20
+    PARIZQ          shift and go to state 42
+    ENTERO          shift and go to state 24
+    DECIMAL         shift and go to state 25
+
+    expresion_numerica             shift and go to state 59
+
+state 43
+
+    (18) expresion_numerica -> INT DOSPUNTOS . DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER
+
+    DOSPUNTOS       shift and go to state 60
+
+
+state 44
+
+    (21) expresion_numerica -> PARIZQ expresion_numerica . PARDER
+    (13) expresion_numerica -> expresion_numerica . MAS expresion_numerica
+    (14) expresion_numerica -> expresion_numerica . MENOS expresion_numerica
+    (15) expresion_numerica -> expresion_numerica . POR expresion_numerica
+    (16) expresion_numerica -> expresion_numerica . DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> expresion_numerica . MODULO expresion_numerica
+    (28) expresion_booleana -> expresion_numerica .
+
+  ! shift/reduce conflict for PARDER resolved as shift
+    PARDER          shift and go to state 61
+    MAS             shift and go to state 32
+    MENOS           shift and go to state 33
+    POR             shift and go to state 34
+    DIVIDIDO        shift and go to state 35
+    MODULO          shift and go to state 36
+    MAYQUE          reduce using rule 28 (expresion_booleana -> expresion_numerica .)
+    MENQUE          reduce using rule 28 (expresion_booleana -> expresion_numerica .)
+    IGUALQUE        reduce using rule 28 (expresion_booleana -> expresion_numerica .)
+    NIGUALQUE       reduce using rule 28 (expresion_booleana -> expresion_numerica .)
+
+  ! PARDER          [ reduce using rule 28 (expresion_booleana -> expresion_numerica .) ]
+
+
+state 45
+
+    (29) expresion_booleana -> PARIZQ expresion_booleana . PARDER
+    (30) expresion_booleana -> expresion_booleana . MAYQUE expresion_booleana
+    (31) expresion_booleana -> expresion_booleana . MENQUE expresion_booleana
+    (32) expresion_booleana -> expresion_booleana . IGUALQUE expresion_booleana
+    (33) expresion_booleana -> expresion_booleana . NIGUALQUE expresion_booleana
+
+    PARDER          shift and go to state 62
+    MAYQUE          shift and go to state 37
+    MENQUE          shift and go to state 38
+    IGUALQUE        shift and go to state 39
+    NIGUALQUE       shift and go to state 40
+
+
+state 46
+
+    (27) expresion_booleana -> expresion_cadena .
+
+    PARDER          reduce using rule 27 (expresion_booleana -> expresion_cadena .)
+    MAYQUE          reduce using rule 27 (expresion_booleana -> expresion_cadena .)
+    MENQUE          reduce using rule 27 (expresion_booleana -> expresion_cadena .)
+    IGUALQUE        reduce using rule 27 (expresion_booleana -> expresion_cadena .)
+    NIGUALQUE       reduce using rule 27 (expresion_booleana -> expresion_cadena .)
+    COMA            reduce using rule 27 (expresion_booleana -> expresion_cadena .)
+
+
+state 47
+
+    (19) expresion_numerica -> FLOAT DOSPUNTOS . DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER
+
+    DOSPUNTOS       shift and go to state 63
+
+
+state 48
+
+    (13) expresion_numerica -> expresion_numerica MAS expresion_numerica .
+    (13) expresion_numerica -> expresion_numerica . MAS expresion_numerica
+    (14) expresion_numerica -> expresion_numerica . MENOS expresion_numerica
+    (15) expresion_numerica -> expresion_numerica . POR expresion_numerica
+    (16) expresion_numerica -> expresion_numerica . DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> expresion_numerica . MODULO expresion_numerica
+
+    MAS             reduce using rule 13 (expresion_numerica -> expresion_numerica MAS expresion_numerica .)
+    MENOS           reduce using rule 13 (expresion_numerica -> expresion_numerica MAS expresion_numerica .)
+    PARDER          reduce using rule 13 (expresion_numerica -> expresion_numerica MAS expresion_numerica .)
+    COMA            reduce using rule 13 (expresion_numerica -> expresion_numerica MAS expresion_numerica .)
+    MAYQUE          reduce using rule 13 (expresion_numerica -> expresion_numerica MAS expresion_numerica .)
+    MENQUE          reduce using rule 13 (expresion_numerica -> expresion_numerica MAS expresion_numerica .)
+    IGUALQUE        reduce using rule 13 (expresion_numerica -> expresion_numerica MAS expresion_numerica .)
+    NIGUALQUE       reduce using rule 13 (expresion_numerica -> expresion_numerica MAS expresion_numerica .)
+    POR             shift and go to state 34
+    DIVIDIDO        shift and go to state 35
+    MODULO          shift and go to state 36
+
+  ! POR             [ reduce using rule 13 (expresion_numerica -> expresion_numerica MAS expresion_numerica .) ]
+  ! DIVIDIDO        [ reduce using rule 13 (expresion_numerica -> expresion_numerica MAS expresion_numerica .) ]
+  ! MODULO          [ reduce using rule 13 (expresion_numerica -> expresion_numerica MAS expresion_numerica .) ]
+  ! MAS             [ shift and go to state 32 ]
+  ! MENOS           [ shift and go to state 33 ]
+
+
+state 49
+
+    (14) expresion_numerica -> expresion_numerica MENOS expresion_numerica .
+    (13) expresion_numerica -> expresion_numerica . MAS expresion_numerica
+    (14) expresion_numerica -> expresion_numerica . MENOS expresion_numerica
+    (15) expresion_numerica -> expresion_numerica . POR expresion_numerica
+    (16) expresion_numerica -> expresion_numerica . DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> expresion_numerica . MODULO expresion_numerica
+
+    MAS             reduce using rule 14 (expresion_numerica -> expresion_numerica MENOS expresion_numerica .)
+    MENOS           reduce using rule 14 (expresion_numerica -> expresion_numerica MENOS expresion_numerica .)
+    PARDER          reduce using rule 14 (expresion_numerica -> expresion_numerica MENOS expresion_numerica .)
+    COMA            reduce using rule 14 (expresion_numerica -> expresion_numerica MENOS expresion_numerica .)
+    MAYQUE          reduce using rule 14 (expresion_numerica -> expresion_numerica MENOS expresion_numerica .)
+    MENQUE          reduce using rule 14 (expresion_numerica -> expresion_numerica MENOS expresion_numerica .)
+    IGUALQUE        reduce using rule 14 (expresion_numerica -> expresion_numerica MENOS expresion_numerica .)
+    NIGUALQUE       reduce using rule 14 (expresion_numerica -> expresion_numerica MENOS expresion_numerica .)
+    POR             shift and go to state 34
+    DIVIDIDO        shift and go to state 35
+    MODULO          shift and go to state 36
+
+  ! POR             [ reduce using rule 14 (expresion_numerica -> expresion_numerica MENOS expresion_numerica .) ]
+  ! DIVIDIDO        [ reduce using rule 14 (expresion_numerica -> expresion_numerica MENOS expresion_numerica .) ]
+  ! MODULO          [ reduce using rule 14 (expresion_numerica -> expresion_numerica MENOS expresion_numerica .) ]
+  ! MAS             [ shift and go to state 32 ]
+  ! MENOS           [ shift and go to state 33 ]
+
+
+state 50
+
+    (15) expresion_numerica -> expresion_numerica POR expresion_numerica .
+    (13) expresion_numerica -> expresion_numerica . MAS expresion_numerica
+    (14) expresion_numerica -> expresion_numerica . MENOS expresion_numerica
+    (15) expresion_numerica -> expresion_numerica . POR expresion_numerica
+    (16) expresion_numerica -> expresion_numerica . DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> expresion_numerica . MODULO expresion_numerica
+
+    MAS             reduce using rule 15 (expresion_numerica -> expresion_numerica POR expresion_numerica .)
+    MENOS           reduce using rule 15 (expresion_numerica -> expresion_numerica POR expresion_numerica .)
+    POR             reduce using rule 15 (expresion_numerica -> expresion_numerica POR expresion_numerica .)
+    DIVIDIDO        reduce using rule 15 (expresion_numerica -> expresion_numerica POR expresion_numerica .)
+    MODULO          reduce using rule 15 (expresion_numerica -> expresion_numerica POR expresion_numerica .)
+    PARDER          reduce using rule 15 (expresion_numerica -> expresion_numerica POR expresion_numerica .)
+    COMA            reduce using rule 15 (expresion_numerica -> expresion_numerica POR expresion_numerica .)
+    MAYQUE          reduce using rule 15 (expresion_numerica -> expresion_numerica POR expresion_numerica .)
+    MENQUE          reduce using rule 15 (expresion_numerica -> expresion_numerica POR expresion_numerica .)
+    IGUALQUE        reduce using rule 15 (expresion_numerica -> expresion_numerica POR expresion_numerica .)
+    NIGUALQUE       reduce using rule 15 (expresion_numerica -> expresion_numerica POR expresion_numerica .)
+
+  ! MAS             [ shift and go to state 32 ]
+  ! MENOS           [ shift and go to state 33 ]
+  ! POR             [ shift and go to state 34 ]
+  ! DIVIDIDO        [ shift and go to state 35 ]
+  ! MODULO          [ shift and go to state 36 ]
+
+
+state 51
+
+    (16) expresion_numerica -> expresion_numerica DIVIDIDO expresion_numerica .
+    (13) expresion_numerica -> expresion_numerica . MAS expresion_numerica
+    (14) expresion_numerica -> expresion_numerica . MENOS expresion_numerica
+    (15) expresion_numerica -> expresion_numerica . POR expresion_numerica
+    (16) expresion_numerica -> expresion_numerica . DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> expresion_numerica . MODULO expresion_numerica
+
+    MAS             reduce using rule 16 (expresion_numerica -> expresion_numerica DIVIDIDO expresion_numerica .)
+    MENOS           reduce using rule 16 (expresion_numerica -> expresion_numerica DIVIDIDO expresion_numerica .)
+    POR             reduce using rule 16 (expresion_numerica -> expresion_numerica DIVIDIDO expresion_numerica .)
+    DIVIDIDO        reduce using rule 16 (expresion_numerica -> expresion_numerica DIVIDIDO expresion_numerica .)
+    MODULO          reduce using rule 16 (expresion_numerica -> expresion_numerica DIVIDIDO expresion_numerica .)
+    PARDER          reduce using rule 16 (expresion_numerica -> expresion_numerica DIVIDIDO expresion_numerica .)
+    COMA            reduce using rule 16 (expresion_numerica -> expresion_numerica DIVIDIDO expresion_numerica .)
+    MAYQUE          reduce using rule 16 (expresion_numerica -> expresion_numerica DIVIDIDO expresion_numerica .)
+    MENQUE          reduce using rule 16 (expresion_numerica -> expresion_numerica DIVIDIDO expresion_numerica .)
+    IGUALQUE        reduce using rule 16 (expresion_numerica -> expresion_numerica DIVIDIDO expresion_numerica .)
+    NIGUALQUE       reduce using rule 16 (expresion_numerica -> expresion_numerica DIVIDIDO expresion_numerica .)
+
+  ! MAS             [ shift and go to state 32 ]
+  ! MENOS           [ shift and go to state 33 ]
+  ! POR             [ shift and go to state 34 ]
+  ! DIVIDIDO        [ shift and go to state 35 ]
+  ! MODULO          [ shift and go to state 36 ]
+
+
+state 52
+
+    (17) expresion_numerica -> expresion_numerica MODULO expresion_numerica .
+    (13) expresion_numerica -> expresion_numerica . MAS expresion_numerica
+    (14) expresion_numerica -> expresion_numerica . MENOS expresion_numerica
+    (15) expresion_numerica -> expresion_numerica . POR expresion_numerica
+    (16) expresion_numerica -> expresion_numerica . DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> expresion_numerica . MODULO expresion_numerica
+
+    MAS             reduce using rule 17 (expresion_numerica -> expresion_numerica MODULO expresion_numerica .)
+    MENOS           reduce using rule 17 (expresion_numerica -> expresion_numerica MODULO expresion_numerica .)
+    POR             reduce using rule 17 (expresion_numerica -> expresion_numerica MODULO expresion_numerica .)
+    DIVIDIDO        reduce using rule 17 (expresion_numerica -> expresion_numerica MODULO expresion_numerica .)
+    MODULO          reduce using rule 17 (expresion_numerica -> expresion_numerica MODULO expresion_numerica .)
+    PARDER          reduce using rule 17 (expresion_numerica -> expresion_numerica MODULO expresion_numerica .)
+    COMA            reduce using rule 17 (expresion_numerica -> expresion_numerica MODULO expresion_numerica .)
+    MAYQUE          reduce using rule 17 (expresion_numerica -> expresion_numerica MODULO expresion_numerica .)
+    MENQUE          reduce using rule 17 (expresion_numerica -> expresion_numerica MODULO expresion_numerica .)
+    IGUALQUE        reduce using rule 17 (expresion_numerica -> expresion_numerica MODULO expresion_numerica .)
+    NIGUALQUE       reduce using rule 17 (expresion_numerica -> expresion_numerica MODULO expresion_numerica .)
+
+  ! MAS             [ shift and go to state 32 ]
+  ! MENOS           [ shift and go to state 33 ]
+  ! POR             [ shift and go to state 34 ]
+  ! DIVIDIDO        [ shift and go to state 35 ]
+  ! MODULO          [ shift and go to state 36 ]
+
+
+state 53
+
+    (30) expresion_booleana -> expresion_booleana MAYQUE expresion_booleana .
+    (30) expresion_booleana -> expresion_booleana . MAYQUE expresion_booleana
+    (31) expresion_booleana -> expresion_booleana . MENQUE expresion_booleana
+    (32) expresion_booleana -> expresion_booleana . IGUALQUE expresion_booleana
+    (33) expresion_booleana -> expresion_booleana . NIGUALQUE expresion_booleana
+
+  ! shift/reduce conflict for MAYQUE resolved as shift
+  ! shift/reduce conflict for MENQUE resolved as shift
+  ! shift/reduce conflict for IGUALQUE resolved as shift
+  ! shift/reduce conflict for NIGUALQUE resolved as shift
+    PARDER          reduce using rule 30 (expresion_booleana -> expresion_booleana MAYQUE expresion_booleana .)
+    COMA            reduce using rule 30 (expresion_booleana -> expresion_booleana MAYQUE expresion_booleana .)
+    MAYQUE          shift and go to state 37
+    MENQUE          shift and go to state 38
+    IGUALQUE        shift and go to state 39
+    NIGUALQUE       shift and go to state 40
+
+  ! MAYQUE          [ reduce using rule 30 (expresion_booleana -> expresion_booleana MAYQUE expresion_booleana .) ]
+  ! MENQUE          [ reduce using rule 30 (expresion_booleana -> expresion_booleana MAYQUE expresion_booleana .) ]
+  ! IGUALQUE        [ reduce using rule 30 (expresion_booleana -> expresion_booleana MAYQUE expresion_booleana .) ]
+  ! NIGUALQUE       [ reduce using rule 30 (expresion_booleana -> expresion_booleana MAYQUE expresion_booleana .) ]
+
+
+state 54
+
+    (28) expresion_booleana -> expresion_numerica .
+    (13) expresion_numerica -> expresion_numerica . MAS expresion_numerica
+    (14) expresion_numerica -> expresion_numerica . MENOS expresion_numerica
+    (15) expresion_numerica -> expresion_numerica . POR expresion_numerica
+    (16) expresion_numerica -> expresion_numerica . DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> expresion_numerica . MODULO expresion_numerica
+
+    MAYQUE          reduce using rule 28 (expresion_booleana -> expresion_numerica .)
+    MENQUE          reduce using rule 28 (expresion_booleana -> expresion_numerica .)
+    IGUALQUE        reduce using rule 28 (expresion_booleana -> expresion_numerica .)
+    NIGUALQUE       reduce using rule 28 (expresion_booleana -> expresion_numerica .)
+    PARDER          reduce using rule 28 (expresion_booleana -> expresion_numerica .)
+    COMA            reduce using rule 28 (expresion_booleana -> expresion_numerica .)
+    MAS             shift and go to state 32
+    MENOS           shift and go to state 33
+    POR             shift and go to state 34
+    DIVIDIDO        shift and go to state 35
+    MODULO          shift and go to state 36
+
+
+state 55
+
+    (29) expresion_booleana -> PARIZQ . expresion_booleana PARDER
+    (21) expresion_numerica -> PARIZQ . expresion_numerica PARDER
+    (25) expresion_booleana -> . TRUE
+    (26) expresion_booleana -> . FALSE
+    (27) expresion_booleana -> . expresion_cadena
+    (28) expresion_booleana -> . expresion_numerica
+    (29) expresion_booleana -> . PARIZQ expresion_booleana PARDER
+    (30) expresion_booleana -> . expresion_booleana MAYQUE expresion_booleana
+    (31) expresion_booleana -> . expresion_booleana MENQUE expresion_booleana
+    (32) expresion_booleana -> . expresion_booleana IGUALQUE expresion_booleana
+    (33) expresion_booleana -> . expresion_booleana NIGUALQUE expresion_booleana
+    (13) expresion_numerica -> . expresion_numerica MAS expresion_numerica
+    (14) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
+    (15) expresion_numerica -> . expresion_numerica POR expresion_numerica
+    (16) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> . expresion_numerica MODULO expresion_numerica
+    (18) expresion_numerica -> . INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (19) expresion_numerica -> . FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (20) expresion_numerica -> . MENOS expresion_numerica
+    (21) expresion_numerica -> . PARIZQ expresion_numerica PARDER
+    (22) expresion_numerica -> . ENTERO
+    (23) expresion_numerica -> . DECIMAL
+    (24) expresion_cadena -> . CADENA
+
+    TRUE            shift and go to state 26
+    FALSE           shift and go to state 27
+    PARIZQ          shift and go to state 55
+    INT             shift and go to state 21
+    FLOAT           shift and go to state 23
+    MENOS           shift and go to state 20
+    ENTERO          shift and go to state 24
+    DECIMAL         shift and go to state 25
+    CADENA          shift and go to state 19
+
+    expresion_booleana             shift and go to state 45
+    expresion_numerica             shift and go to state 64
+    expresion_cadena               shift and go to state 46
+
+state 56
+
+    (31) expresion_booleana -> expresion_booleana MENQUE expresion_booleana .
+    (30) expresion_booleana -> expresion_booleana . MAYQUE expresion_booleana
+    (31) expresion_booleana -> expresion_booleana . MENQUE expresion_booleana
+    (32) expresion_booleana -> expresion_booleana . IGUALQUE expresion_booleana
+    (33) expresion_booleana -> expresion_booleana . NIGUALQUE expresion_booleana
+
+  ! shift/reduce conflict for MAYQUE resolved as shift
+  ! shift/reduce conflict for MENQUE resolved as shift
+  ! shift/reduce conflict for IGUALQUE resolved as shift
+  ! shift/reduce conflict for NIGUALQUE resolved as shift
+    PARDER          reduce using rule 31 (expresion_booleana -> expresion_booleana MENQUE expresion_booleana .)
+    COMA            reduce using rule 31 (expresion_booleana -> expresion_booleana MENQUE expresion_booleana .)
+    MAYQUE          shift and go to state 37
+    MENQUE          shift and go to state 38
+    IGUALQUE        shift and go to state 39
+    NIGUALQUE       shift and go to state 40
+
+  ! MAYQUE          [ reduce using rule 31 (expresion_booleana -> expresion_booleana MENQUE expresion_booleana .) ]
+  ! MENQUE          [ reduce using rule 31 (expresion_booleana -> expresion_booleana MENQUE expresion_booleana .) ]
+  ! IGUALQUE        [ reduce using rule 31 (expresion_booleana -> expresion_booleana MENQUE expresion_booleana .) ]
+  ! NIGUALQUE       [ reduce using rule 31 (expresion_booleana -> expresion_booleana MENQUE expresion_booleana .) ]
+
+
+state 57
+
+    (32) expresion_booleana -> expresion_booleana IGUALQUE expresion_booleana .
+    (30) expresion_booleana -> expresion_booleana . MAYQUE expresion_booleana
+    (31) expresion_booleana -> expresion_booleana . MENQUE expresion_booleana
+    (32) expresion_booleana -> expresion_booleana . IGUALQUE expresion_booleana
+    (33) expresion_booleana -> expresion_booleana . NIGUALQUE expresion_booleana
+
+  ! shift/reduce conflict for MAYQUE resolved as shift
+  ! shift/reduce conflict for MENQUE resolved as shift
+  ! shift/reduce conflict for IGUALQUE resolved as shift
+  ! shift/reduce conflict for NIGUALQUE resolved as shift
+    PARDER          reduce using rule 32 (expresion_booleana -> expresion_booleana IGUALQUE expresion_booleana .)
+    COMA            reduce using rule 32 (expresion_booleana -> expresion_booleana IGUALQUE expresion_booleana .)
+    MAYQUE          shift and go to state 37
+    MENQUE          shift and go to state 38
+    IGUALQUE        shift and go to state 39
+    NIGUALQUE       shift and go to state 40
+
+  ! MAYQUE          [ reduce using rule 32 (expresion_booleana -> expresion_booleana IGUALQUE expresion_booleana .) ]
+  ! MENQUE          [ reduce using rule 32 (expresion_booleana -> expresion_booleana IGUALQUE expresion_booleana .) ]
+  ! IGUALQUE        [ reduce using rule 32 (expresion_booleana -> expresion_booleana IGUALQUE expresion_booleana .) ]
+  ! NIGUALQUE       [ reduce using rule 32 (expresion_booleana -> expresion_booleana IGUALQUE expresion_booleana .) ]
+
+
+state 58
+
+    (33) expresion_booleana -> expresion_booleana NIGUALQUE expresion_booleana .
+    (30) expresion_booleana -> expresion_booleana . MAYQUE expresion_booleana
+    (31) expresion_booleana -> expresion_booleana . MENQUE expresion_booleana
+    (32) expresion_booleana -> expresion_booleana . IGUALQUE expresion_booleana
+    (33) expresion_booleana -> expresion_booleana . NIGUALQUE expresion_booleana
+
+  ! shift/reduce conflict for MAYQUE resolved as shift
+  ! shift/reduce conflict for MENQUE resolved as shift
+  ! shift/reduce conflict for IGUALQUE resolved as shift
+  ! shift/reduce conflict for NIGUALQUE resolved as shift
+    PARDER          reduce using rule 33 (expresion_booleana -> expresion_booleana NIGUALQUE expresion_booleana .)
+    COMA            reduce using rule 33 (expresion_booleana -> expresion_booleana NIGUALQUE expresion_booleana .)
+    MAYQUE          shift and go to state 37
+    MENQUE          shift and go to state 38
+    IGUALQUE        shift and go to state 39
+    NIGUALQUE       shift and go to state 40
+
+  ! MAYQUE          [ reduce using rule 33 (expresion_booleana -> expresion_booleana NIGUALQUE expresion_booleana .) ]
+  ! MENQUE          [ reduce using rule 33 (expresion_booleana -> expresion_booleana NIGUALQUE expresion_booleana .) ]
+  ! IGUALQUE        [ reduce using rule 33 (expresion_booleana -> expresion_booleana NIGUALQUE expresion_booleana .) ]
+  ! NIGUALQUE       [ reduce using rule 33 (expresion_booleana -> expresion_booleana NIGUALQUE expresion_booleana .) ]
+
+
+state 59
+
+    (21) expresion_numerica -> PARIZQ expresion_numerica . PARDER
+    (13) expresion_numerica -> expresion_numerica . MAS expresion_numerica
+    (14) expresion_numerica -> expresion_numerica . MENOS expresion_numerica
+    (15) expresion_numerica -> expresion_numerica . POR expresion_numerica
+    (16) expresion_numerica -> expresion_numerica . DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> expresion_numerica . MODULO expresion_numerica
+
+    PARDER          shift and go to state 61
+    MAS             shift and go to state 32
+    MENOS           shift and go to state 33
+    POR             shift and go to state 34
+    DIVIDIDO        shift and go to state 35
+    MODULO          shift and go to state 36
+
+
+state 60
+
+    (18) expresion_numerica -> INT DOSPUNTOS DOSPUNTOS . POW PARIZQ expresion_numerica COMA expresion_numerica PARDER
+
+    POW             shift and go to state 65
+
+
+state 61
+
+    (21) expresion_numerica -> PARIZQ expresion_numerica PARDER .
+
+    MAS             reduce using rule 21 (expresion_numerica -> PARIZQ expresion_numerica PARDER .)
+    MENOS           reduce using rule 21 (expresion_numerica -> PARIZQ expresion_numerica PARDER .)
+    POR             reduce using rule 21 (expresion_numerica -> PARIZQ expresion_numerica PARDER .)
+    DIVIDIDO        reduce using rule 21 (expresion_numerica -> PARIZQ expresion_numerica PARDER .)
+    MODULO          reduce using rule 21 (expresion_numerica -> PARIZQ expresion_numerica PARDER .)
+    PARDER          reduce using rule 21 (expresion_numerica -> PARIZQ expresion_numerica PARDER .)
+    COMA            reduce using rule 21 (expresion_numerica -> PARIZQ expresion_numerica PARDER .)
+    MAYQUE          reduce using rule 21 (expresion_numerica -> PARIZQ expresion_numerica PARDER .)
+    MENQUE          reduce using rule 21 (expresion_numerica -> PARIZQ expresion_numerica PARDER .)
+    IGUALQUE        reduce using rule 21 (expresion_numerica -> PARIZQ expresion_numerica PARDER .)
+    NIGUALQUE       reduce using rule 21 (expresion_numerica -> PARIZQ expresion_numerica PARDER .)
+
+
+state 62
+
+    (29) expresion_booleana -> PARIZQ expresion_booleana PARDER .
+
+    MAYQUE          reduce using rule 29 (expresion_booleana -> PARIZQ expresion_booleana PARDER .)
+    MENQUE          reduce using rule 29 (expresion_booleana -> PARIZQ expresion_booleana PARDER .)
+    IGUALQUE        reduce using rule 29 (expresion_booleana -> PARIZQ expresion_booleana PARDER .)
+    NIGUALQUE       reduce using rule 29 (expresion_booleana -> PARIZQ expresion_booleana PARDER .)
+    PARDER          reduce using rule 29 (expresion_booleana -> PARIZQ expresion_booleana PARDER .)
+    COMA            reduce using rule 29 (expresion_booleana -> PARIZQ expresion_booleana PARDER .)
+
+
+state 63
+
+    (19) expresion_numerica -> FLOAT DOSPUNTOS DOSPUNTOS . POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER
+
+    POWF            shift and go to state 66
+
+
+state 64
+
+    (21) expresion_numerica -> PARIZQ expresion_numerica . PARDER
+    (28) expresion_booleana -> expresion_numerica .
+    (13) expresion_numerica -> expresion_numerica . MAS expresion_numerica
+    (14) expresion_numerica -> expresion_numerica . MENOS expresion_numerica
+    (15) expresion_numerica -> expresion_numerica . POR expresion_numerica
+    (16) expresion_numerica -> expresion_numerica . DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> expresion_numerica . MODULO expresion_numerica
+
+  ! shift/reduce conflict for PARDER resolved as shift
+    PARDER          shift and go to state 61
+    MAYQUE          reduce using rule 28 (expresion_booleana -> expresion_numerica .)
+    MENQUE          reduce using rule 28 (expresion_booleana -> expresion_numerica .)
+    IGUALQUE        reduce using rule 28 (expresion_booleana -> expresion_numerica .)
+    NIGUALQUE       reduce using rule 28 (expresion_booleana -> expresion_numerica .)
+    MAS             shift and go to state 32
+    MENOS           shift and go to state 33
+    POR             shift and go to state 34
+    DIVIDIDO        shift and go to state 35
+    MODULO          shift and go to state 36
+
+  ! PARDER          [ reduce using rule 28 (expresion_booleana -> expresion_numerica .) ]
+
+
+state 65
+
+    (18) expresion_numerica -> INT DOSPUNTOS DOSPUNTOS POW . PARIZQ expresion_numerica COMA expresion_numerica PARDER
+
+    PARIZQ          shift and go to state 67
+
+
+state 66
+
+    (19) expresion_numerica -> FLOAT DOSPUNTOS DOSPUNTOS POWF . PARIZQ expresion_numerica COMA expresion_numerica PARDER
+
+    PARIZQ          shift and go to state 68
+
+
+state 67
+
+    (18) expresion_numerica -> INT DOSPUNTOS DOSPUNTOS POW PARIZQ . expresion_numerica COMA expresion_numerica PARDER
+    (13) expresion_numerica -> . expresion_numerica MAS expresion_numerica
+    (14) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
+    (15) expresion_numerica -> . expresion_numerica POR expresion_numerica
+    (16) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> . expresion_numerica MODULO expresion_numerica
+    (18) expresion_numerica -> . INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (19) expresion_numerica -> . FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (20) expresion_numerica -> . MENOS expresion_numerica
+    (21) expresion_numerica -> . PARIZQ expresion_numerica PARDER
+    (22) expresion_numerica -> . ENTERO
+    (23) expresion_numerica -> . DECIMAL
+
+    INT             shift and go to state 21
+    FLOAT           shift and go to state 23
+    MENOS           shift and go to state 20
+    PARIZQ          shift and go to state 42
+    ENTERO          shift and go to state 24
+    DECIMAL         shift and go to state 25
+
+    expresion_numerica             shift and go to state 69
+
+state 68
+
+    (19) expresion_numerica -> FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ . expresion_numerica COMA expresion_numerica PARDER
+    (13) expresion_numerica -> . expresion_numerica MAS expresion_numerica
+    (14) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
+    (15) expresion_numerica -> . expresion_numerica POR expresion_numerica
+    (16) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> . expresion_numerica MODULO expresion_numerica
+    (18) expresion_numerica -> . INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (19) expresion_numerica -> . FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (20) expresion_numerica -> . MENOS expresion_numerica
+    (21) expresion_numerica -> . PARIZQ expresion_numerica PARDER
+    (22) expresion_numerica -> . ENTERO
+    (23) expresion_numerica -> . DECIMAL
+
+    INT             shift and go to state 21
+    FLOAT           shift and go to state 23
+    MENOS           shift and go to state 20
+    PARIZQ          shift and go to state 42
+    ENTERO          shift and go to state 24
+    DECIMAL         shift and go to state 25
+
+    expresion_numerica             shift and go to state 70
+
+state 69
+
+    (18) expresion_numerica -> INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica . COMA expresion_numerica PARDER
+    (13) expresion_numerica -> expresion_numerica . MAS expresion_numerica
+    (14) expresion_numerica -> expresion_numerica . MENOS expresion_numerica
+    (15) expresion_numerica -> expresion_numerica . POR expresion_numerica
+    (16) expresion_numerica -> expresion_numerica . DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> expresion_numerica . MODULO expresion_numerica
+
+    COMA            shift and go to state 71
+    MAS             shift and go to state 32
+    MENOS           shift and go to state 33
+    POR             shift and go to state 34
+    DIVIDIDO        shift and go to state 35
+    MODULO          shift and go to state 36
+
+
+state 70
+
+    (19) expresion_numerica -> FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica . COMA expresion_numerica PARDER
+    (13) expresion_numerica -> expresion_numerica . MAS expresion_numerica
+    (14) expresion_numerica -> expresion_numerica . MENOS expresion_numerica
+    (15) expresion_numerica -> expresion_numerica . POR expresion_numerica
+    (16) expresion_numerica -> expresion_numerica . DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> expresion_numerica . MODULO expresion_numerica
+
+    COMA            shift and go to state 72
+    MAS             shift and go to state 32
+    MENOS           shift and go to state 33
+    POR             shift and go to state 34
+    DIVIDIDO        shift and go to state 35
+    MODULO          shift and go to state 36
+
+
+state 71
+
+    (18) expresion_numerica -> INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA . expresion_numerica PARDER
+    (13) expresion_numerica -> . expresion_numerica MAS expresion_numerica
+    (14) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
+    (15) expresion_numerica -> . expresion_numerica POR expresion_numerica
+    (16) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> . expresion_numerica MODULO expresion_numerica
+    (18) expresion_numerica -> . INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (19) expresion_numerica -> . FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (20) expresion_numerica -> . MENOS expresion_numerica
+    (21) expresion_numerica -> . PARIZQ expresion_numerica PARDER
+    (22) expresion_numerica -> . ENTERO
+    (23) expresion_numerica -> . DECIMAL
+
+    INT             shift and go to state 21
+    FLOAT           shift and go to state 23
+    MENOS           shift and go to state 20
+    PARIZQ          shift and go to state 42
+    ENTERO          shift and go to state 24
+    DECIMAL         shift and go to state 25
+
+    expresion_numerica             shift and go to state 73
+
+state 72
+
+    (19) expresion_numerica -> FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA . expresion_numerica PARDER
+    (13) expresion_numerica -> . expresion_numerica MAS expresion_numerica
+    (14) expresion_numerica -> . expresion_numerica MENOS expresion_numerica
+    (15) expresion_numerica -> . expresion_numerica POR expresion_numerica
+    (16) expresion_numerica -> . expresion_numerica DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> . expresion_numerica MODULO expresion_numerica
+    (18) expresion_numerica -> . INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (19) expresion_numerica -> . FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER
+    (20) expresion_numerica -> . MENOS expresion_numerica
+    (21) expresion_numerica -> . PARIZQ expresion_numerica PARDER
+    (22) expresion_numerica -> . ENTERO
+    (23) expresion_numerica -> . DECIMAL
+
+    INT             shift and go to state 21
+    FLOAT           shift and go to state 23
+    MENOS           shift and go to state 20
+    PARIZQ          shift and go to state 42
+    ENTERO          shift and go to state 24
+    DECIMAL         shift and go to state 25
+
+    expresion_numerica             shift and go to state 74
+
+state 73
+
+    (18) expresion_numerica -> INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica . PARDER
+    (13) expresion_numerica -> expresion_numerica . MAS expresion_numerica
+    (14) expresion_numerica -> expresion_numerica . MENOS expresion_numerica
+    (15) expresion_numerica -> expresion_numerica . POR expresion_numerica
+    (16) expresion_numerica -> expresion_numerica . DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> expresion_numerica . MODULO expresion_numerica
+
+    PARDER          shift and go to state 75
+    MAS             shift and go to state 32
+    MENOS           shift and go to state 33
+    POR             shift and go to state 34
+    DIVIDIDO        shift and go to state 35
+    MODULO          shift and go to state 36
+
+
+state 74
+
+    (19) expresion_numerica -> FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica . PARDER
+    (13) expresion_numerica -> expresion_numerica . MAS expresion_numerica
+    (14) expresion_numerica -> expresion_numerica . MENOS expresion_numerica
+    (15) expresion_numerica -> expresion_numerica . POR expresion_numerica
+    (16) expresion_numerica -> expresion_numerica . DIVIDIDO expresion_numerica
+    (17) expresion_numerica -> expresion_numerica . MODULO expresion_numerica
+
+    PARDER          shift and go to state 76
+    MAS             shift and go to state 32
+    MENOS           shift and go to state 33
+    POR             shift and go to state 34
+    DIVIDIDO        shift and go to state 35
+    MODULO          shift and go to state 36
+
+
+state 75
+
+    (18) expresion_numerica -> INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER .
+
+    MAS             reduce using rule 18 (expresion_numerica -> INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER .)
+    MENOS           reduce using rule 18 (expresion_numerica -> INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER .)
+    POR             reduce using rule 18 (expresion_numerica -> INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER .)
+    DIVIDIDO        reduce using rule 18 (expresion_numerica -> INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER .)
+    MODULO          reduce using rule 18 (expresion_numerica -> INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER .)
+    PARDER          reduce using rule 18 (expresion_numerica -> INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER .)
+    COMA            reduce using rule 18 (expresion_numerica -> INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER .)
+    MAYQUE          reduce using rule 18 (expresion_numerica -> INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER .)
+    MENQUE          reduce using rule 18 (expresion_numerica -> INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER .)
+    IGUALQUE        reduce using rule 18 (expresion_numerica -> INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER .)
+    NIGUALQUE       reduce using rule 18 (expresion_numerica -> INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER .)
+
+
+state 76
+
+    (19) expresion_numerica -> FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER .
+
+    MAS             reduce using rule 19 (expresion_numerica -> FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER .)
+    MENOS           reduce using rule 19 (expresion_numerica -> FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER .)
+    POR             reduce using rule 19 (expresion_numerica -> FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER .)
+    DIVIDIDO        reduce using rule 19 (expresion_numerica -> FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER .)
+    MODULO          reduce using rule 19 (expresion_numerica -> FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER .)
+    PARDER          reduce using rule 19 (expresion_numerica -> FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER .)
+    COMA            reduce using rule 19 (expresion_numerica -> FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER .)
+    MAYQUE          reduce using rule 19 (expresion_numerica -> FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER .)
+    MENQUE          reduce using rule 19 (expresion_numerica -> FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER .)
+    IGUALQUE        reduce using rule 19 (expresion_numerica -> FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER .)
+    NIGUALQUE       reduce using rule 19 (expresion_numerica -> FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER .)
+
+WARNING: 
+WARNING: Conflicts:
+WARNING: 
+WARNING: shift/reduce conflict for PARDER in state 44 resolved as shift
+WARNING: shift/reduce conflict for MAYQUE in state 53 resolved as shift
+WARNING: shift/reduce conflict for MENQUE in state 53 resolved as shift
+WARNING: shift/reduce conflict for IGUALQUE in state 53 resolved as shift
+WARNING: shift/reduce conflict for NIGUALQUE in state 53 resolved as shift
+WARNING: shift/reduce conflict for MAYQUE in state 56 resolved as shift
+WARNING: shift/reduce conflict for MENQUE in state 56 resolved as shift
+WARNING: shift/reduce conflict for IGUALQUE in state 56 resolved as shift
+WARNING: shift/reduce conflict for NIGUALQUE in state 56 resolved as shift
+WARNING: shift/reduce conflict for MAYQUE in state 57 resolved as shift
+WARNING: shift/reduce conflict for MENQUE in state 57 resolved as shift
+WARNING: shift/reduce conflict for IGUALQUE in state 57 resolved as shift
+WARNING: shift/reduce conflict for NIGUALQUE in state 57 resolved as shift
+WARNING: shift/reduce conflict for MAYQUE in state 58 resolved as shift
+WARNING: shift/reduce conflict for MENQUE in state 58 resolved as shift
+WARNING: shift/reduce conflict for IGUALQUE in state 58 resolved as shift
+WARNING: shift/reduce conflict for NIGUALQUE in state 58 resolved as shift
+WARNING: shift/reduce conflict for PARDER in state 64 resolved as shift
+WARNING: reduce/reduce conflict in state 16 resolved using rule (pparam -> COMA expresion_cadena)
+WARNING: rejected rule (expresion_booleana -> expresion_cadena) in state 16
+WARNING: reduce/reduce conflict in state 17 resolved using rule (pparam -> COMA expresion_numerica)
+WARNING: rejected rule (expresion_booleana -> expresion_numerica) in state 17
+WARNING: reduce/reduce conflict in state 29 resolved using rule (pparam -> pparam COMA expresion_cadena)
+WARNING: rejected rule (expresion_booleana -> expresion_cadena) in state 29
+WARNING: reduce/reduce conflict in state 30 resolved using rule (pparam -> pparam COMA expresion_numerica)
+WARNING: rejected rule (expresion_booleana -> expresion_numerica) in state 30

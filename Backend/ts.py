@@ -3,6 +3,8 @@ from enum import Enum
 class TIPO_DATO(Enum) :
     INT64 = 1
     FLOAT64 = 2
+    BOOLEAN = 3
+    STRING = 4
 
 class Simbolo() :
     'Esta clase representa un simbolo dentro de nuestra tabla de simbolos'

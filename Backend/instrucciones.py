@@ -6,8 +6,9 @@ class Imprimir(Instruccion) :
         Esta clase representa la instrucción imprimir.
         La instrucción imprimir únicamente tiene como parámetro una cadena
     '''
-    def __init__(self,  cad) :
+    def __init__(self,  cad, parametros) :
         self.cad = cad
+        self.parametros = parametros
 
 class Funcion(Instruccion):
     def __init__(self, id, parametros, instrucciones, tipo_dato):
