@@ -12,6 +12,10 @@ class OPERACION_LOGICA(Enum) :
     MENOR_QUE = 2
     IGUAL = 3
     DIFERENTE = 4
+    MAYORIGUAL = 5
+    MENORIGUAL = 6
+    AND = 7
+    OR = 8
 
 class ExpresionNumerica:
     '''
@@ -96,11 +100,21 @@ class ExpresionLogica :
        Esta clase representa una Expresión de tipo Logica.
     '''
     
+class ExpresionRelacionalBinaria(ExpresionLogica):
+    def __init__(self, exp1, exp2, operador) :
+        self.exp1 = exp1
+        self.exp2 = exp2
+        self.operador = operador
+
 class ExpresionLogicaBinaria(ExpresionLogica):
     def __init__(self, exp1, exp2, operador) :
         self.exp1 = exp1
         self.exp2 = exp2
         self.operador = operador
+
+class ExpresionNot(ExpresionLogica) :
+    def __init__(self, exp) :
+        self.exp = exp
 
 class ExpresionLogicaTF(ExpresionLogica):
     def __init__(self, val, tipo) :

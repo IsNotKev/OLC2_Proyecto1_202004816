@@ -71,7 +71,7 @@ def procesar_imprimir(instr, ts) :
 #       print('Error: Expresión cadena no válida')
 
 def resolver_expresion(exp, ts):
-    if isinstance(exp, ExpresionLogicaBinaria):
+    if isinstance(exp, ExpresionRelacionalBinaria):
         exp1 = resolver_expresion(exp.exp1, ts)
         exp2 = resolver_expresion(exp.exp2, ts)
         if(exp1.tipo == exp2.tipo):
@@ -79,8 +79,24 @@ def resolver_expresion(exp, ts):
             if exp.operador == OPERACION_LOGICA.MENOR_QUE : return ExpresionLogicaTF(exp1.val < exp2.val, TIPO_DATO.BOOLEAN)
             if exp.operador == OPERACION_LOGICA.IGUAL : return ExpresionLogicaTF(exp1.val == exp2.val, TIPO_DATO.BOOLEAN)
             if exp.operador == OPERACION_LOGICA.DIFERENTE : return ExpresionLogicaTF(exp1.val != exp2.val, TIPO_DATO.BOOLEAN)
+            if exp.operador == OPERACION_LOGICA.MAYORIGUAL : return ExpresionLogicaTF(exp1.val >= exp2.val, TIPO_DATO.BOOLEAN)
+            if exp.operador == OPERACION_LOGICA.MENORIGUAL : return ExpresionLogicaTF(exp1.val <= exp2.val, TIPO_DATO.BOOLEAN)
         else:
             return ExpresionDobleComilla("Error -> No son del mismo tipo", TIPO_DATO.STRING)
+    elif isinstance(exp, ExpresionLogicaBinaria):
+        exp1 = resolver_expresion(exp.exp1, ts)
+        exp2 = resolver_expresion(exp.exp2, ts)
+        if(exp1.tipo == TIPO_DATO.BOOLEAN and exp2.tipo == TIPO_DATO.BOOLEAN):
+            if exp.operador == OPERACION_LOGICA.OR : return ExpresionLogicaTF(exp1.val or exp2.val, TIPO_DATO.BOOLEAN)
+            if exp.operador == OPERACION_LOGICA.AND : return ExpresionLogicaTF(exp1.val and exp2.val, TIPO_DATO.BOOLEAN)
+        else:
+            return ExpresionDobleComilla("Error -> No son del tipo boolean", TIPO_DATO.STRING)
+    elif isinstance(exp, ExpresionNot):
+        exp1 = resolver_expresion(exp.exp, ts)
+        if(exp1.tipo == TIPO_DATO.BOOLEAN):
+            return ExpresionLogicaTF(not exp1.val, TIPO_DATO.BOOLEAN)
+        else:
+            return ExpresionDobleComilla("Error -> No son de tipo boolean", TIPO_DATO.STRING)
     elif isinstance(exp, ExpresionLogicaTF):
         return exp
     elif isinstance(exp, ExpresionDobleComilla) :

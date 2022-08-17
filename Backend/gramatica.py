@@ -35,6 +35,8 @@ tokens  = [
     'MAYQUE',
     'IGUALQUE',
     'NIGUALQUE',
+    'OR',
+    'AND',
     'DECIMAL',
     'ENTERO',
     'CADENA',
@@ -63,6 +65,8 @@ t_MENQUE    = r'<'
 t_MAYQUE    = r'>'
 t_IGUALQUE  = r'=='
 t_NIGUALQUE = r'!='
+t_OR        = r'\|\|'
+t_AND       = r'&&'
 t_ADMIR     = r'!'
 
 
@@ -120,7 +124,7 @@ precedence = (
     #('left','CONCAT'),
     ('left','MAS','MENOS'),
     ('left','POR','DIVIDIDO','MODULO'),
-    ('right','UMENOS')
+    ('right','UMENOS', 'NOT')
     )
 
 from expresiones import *
@@ -155,14 +159,16 @@ def p_instruccion_imprimir_p(t) :
 def p_lpparam(t):
     '''pparam                : pparam COMA expresion_cadena 
                             |  pparam COMA expresion_numerica 
-                            |  pparam COMA expresion_booleana'''
+                            |  pparam COMA expresion_relacional
+                            |  pparam COMA expresion_logica'''
     t[1].append(t[3])
     t[0] = t[1]
 
 def p_pparam(t):
     '''pparam                :  COMA expresion_cadena 
                             |   COMA expresion_numerica 
-                            |   COMA expresion_booleana'''
+                            |   COMA expresion_relacional
+                            |   COMA expresion_logica'''
     t[0] = [t[2]]
 
 def p_expresion_binaria(t):
@@ -205,33 +211,46 @@ def p_expresion_cadena(t) :
     'expresion_cadena     : CADENA'
     t[0] = ExpresionDobleComilla(t[1],TIPO_DATO.STRING)
 
-def p_expresion_booleanaT(t) :
-    'expresion_booleana     : TRUE'
+def p_expresion_logicaT(t) :
+    'expresion_logica     : TRUE'
     t[0] = ExpresionLogicaTF(True, TIPO_DATO.BOOLEAN)
 
-def p_expresion_booleanaF(t) :
-    'expresion_booleana     : FALSE'
+def p_expresion_logicaF(t) :
+    'expresion_logica    : FALSE'
     t[0] = ExpresionLogicaTF(False, TIPO_DATO.BOOLEAN)
 
-def p_expresion_booleanaD(t) :
-    '''expresion_booleana     : expresion_cadena
-                            |   expresion_numerica'''
+def p_expresion_relacionalD(t) :
+    '''expresion_relacional    : expresion_cadena
+                            |   expresion_numerica
+                            |   expresion_logica'''
     t[0] = t[1]
 
-def p_expresion_agrupacionLogica(t):
-    'expresion_booleana : PARIZQ expresion_booleana PARDER'  
+def p_expresion_agrupacionRelacional(t):
+    'expresion_relacional : PARIZQ expresion_relacional PARDER'  
     t[0] = t[2]
 
-def p_expresion_booleana(t):
-    '''expresion_booleana     : expresion_booleana MAYQUE expresion_booleana
-                            |   expresion_booleana MENQUE expresion_booleana
-                            |   expresion_booleana IGUALQUE expresion_booleana
-                            |   expresion_booleana NIGUALQUE expresion_booleana''' 
+def p_expresion_relacional(t):
+    '''expresion_relacional     : expresion_relacional MAYQUE expresion_relacional
+                            |   expresion_relacional MENQUE expresion_relacional
+                            |   expresion_relacional IGUALQUE expresion_relacional
+                            |   expresion_relacional NIGUALQUE expresion_relacional
+                            |   expresion_relacional MAYORIGUAL expresion_relacional
+                            |   expresion_relacional MENORIGUAL expresion_relacional
+                            |   expresion_relacional OR expresion_relacional
+                            |   expresion_relacional AND expresion_relacional''' 
     
-    if t[2] == '>'    : t[0] = ExpresionLogicaBinaria(t[1], t[3], OPERACION_LOGICA.MAYOR_QUE)
-    elif t[2] == '<'  : t[0] = ExpresionLogicaBinaria(t[1], t[3], OPERACION_LOGICA.MENOR_QUE)
-    elif t[2] == '==' : t[0] = ExpresionLogicaBinaria(t[1], t[3], OPERACION_LOGICA.IGUAL)
-    elif t[2] == '!=' : t[0] = ExpresionLogicaBinaria(t[1], t[3], OPERACION_LOGICA.DIFERENTE)
+    if t[2] == '>'    : t[0] = ExpresionRelacionalBinaria(t[1], t[3], OPERACION_LOGICA.MAYOR_QUE)
+    elif t[2] == '<'  : t[0] = ExpresionRelacionalBinaria(t[1], t[3], OPERACION_LOGICA.MENOR_QUE)
+    elif t[2] == '==' : t[0] = ExpresionRelacionalBinaria(t[1], t[3], OPERACION_LOGICA.IGUAL)
+    elif t[2] == '!=' : t[0] = ExpresionRelacionalBinaria(t[1], t[3], OPERACION_LOGICA.DIFERENTE)
+    elif t[2] == '>=' : t[0] = ExpresionRelacionalBinaria(t[1], t[3], OPERACION_LOGICA.MAYORIGUAL)
+    elif t[2] == '<=' : t[0] = ExpresionRelacionalBinaria(t[1], t[3], OPERACION_LOGICA.MENORIGUAL)
+    elif t[2] == '||'     : t[0] = ExpresionLogicaBinaria(t[1],t[3], OPERACION_LOGICA.OR)
+    elif t[2] == '&&'   : t[0] = ExpresionLogicaBinaria(t[1],t[3], OPERACION_LOGICA.AND)
+
+def p_expresion_logica_unaria(t):
+    'expresion_relacional       :   ADMIR expresion_relacional %prec NOT'
+    t[0] = ExpresionNot(t[2])
 
 # Error sintactico
 def p_error(p):
