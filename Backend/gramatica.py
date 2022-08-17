@@ -157,26 +157,20 @@ def p_instruccion_imprimir_p(t) :
     t[0] =Imprimir(ExpresionDobleComilla(t[4], TIPO_DATO.STRING), t[5])
 
 def p_lpparam(t):
-    '''pparam                : pparam COMA expresion_cadena 
-                            |  pparam COMA expresion_numerica 
-                            |  pparam COMA expresion_relacional
-                            |  pparam COMA expresion_logica'''
+    '''pparam                : pparam COMA expresion'''
     t[1].append(t[3])
     t[0] = t[1]
 
 def p_pparam(t):
-    '''pparam                :  COMA expresion_cadena 
-                            |   COMA expresion_numerica 
-                            |   COMA expresion_relacional
-                            |   COMA expresion_logica'''
+    '''pparam                :  COMA expresion'''
     t[0] = [t[2]]
 
 def p_expresion_binaria(t):
-    '''expresion_numerica : expresion_numerica MAS expresion_numerica
-                        | expresion_numerica MENOS expresion_numerica
-                        | expresion_numerica POR expresion_numerica
-                        | expresion_numerica DIVIDIDO expresion_numerica
-                        | expresion_numerica MODULO expresion_numerica'''
+    '''expresion        : expresion MAS expresion
+                        | expresion MENOS expresion
+                        | expresion POR expresion
+                        | expresion DIVIDIDO expresion
+                        | expresion MODULO expresion'''
     if t[2] == '+'  : t[0] = ExpresionBinaria(t[1], t[3], OPERACION_ARITMETICA.MAS)
     elif t[2] == '-': t[0] = ExpresionBinaria(t[1], t[3], OPERACION_ARITMETICA.MENOS)
     elif t[2] == '*': t[0] = ExpresionBinaria(t[1], t[3], OPERACION_ARITMETICA.POR)
@@ -184,60 +178,50 @@ def p_expresion_binaria(t):
     elif t[2] == '%': t[0] = ExpresionBinaria(t[1], t[3], OPERACION_ARITMETICA.MODULO)
 
 def p_expresion_potencia_I(t):
-    'expresion_numerica : INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion_numerica COMA expresion_numerica PARDER'
+    'expresion : INT DOSPUNTOS DOSPUNTOS POW PARIZQ expresion COMA expresion PARDER'
     t[0] = ExpresionPotencia(t[6],t[8],TIPO_DATO.INT64)
 
 def p_expresion_potencia_F(t):
-    'expresion_numerica : FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion_numerica COMA expresion_numerica PARDER'
+    'expresion : FLOAT DOSPUNTOS DOSPUNTOS POWF PARIZQ expresion COMA expresion PARDER'
     t[0] = ExpresionPotencia(t[6],t[8],TIPO_DATO.FLOAT64)
 
 def p_expresion_unaria(t):
-    'expresion_numerica : MENOS expresion_numerica %prec UMENOS'
+    'expresion : MENOS expresion %prec UMENOS'
     t[0] = ExpresionNegativo(t[2])
 
 def p_expresion_agrupacion(t):
-    'expresion_numerica : PARIZQ expresion_numerica PARDER'
+    'expresion : PARIZQ expresion PARDER'
     t[0] = t[2]
 
 def p_expresion_number(t):
-    '''expresion_numerica : ENTERO'''
+    '''expresion : ENTERO'''
     t[0] = ExpresionNumero(t[1],TIPO_DATO.INT64)
 
 def p_expresion_numberd(t):
-    '''expresion_numerica : DECIMAL'''
+    '''expresion : DECIMAL'''
     t[0] = ExpresionNumero(t[1],TIPO_DATO.FLOAT64)
 
 def p_expresion_cadena(t) :
-    'expresion_cadena     : CADENA'
+    'expresion     : CADENA'
     t[0] = ExpresionDobleComilla(t[1],TIPO_DATO.STRING)
 
 def p_expresion_logicaT(t) :
-    'expresion_logica     : TRUE'
+    'expresion     : TRUE'
     t[0] = ExpresionLogicaTF(True, TIPO_DATO.BOOLEAN)
 
 def p_expresion_logicaF(t) :
-    'expresion_logica    : FALSE'
+    'expresion    : FALSE'
     t[0] = ExpresionLogicaTF(False, TIPO_DATO.BOOLEAN)
 
-def p_expresion_relacionalD(t) :
-    '''expresion_relacional    : expresion_cadena
-                            |   expresion_numerica
-                            |   expresion_logica'''
-    t[0] = t[1]
-
-def p_expresion_agrupacionRelacional(t):
-    'expresion_relacional : PARIZQ expresion_relacional PARDER'  
-    t[0] = t[2]
-
 def p_expresion_relacional(t):
-    '''expresion_relacional     : expresion_relacional MAYQUE expresion_relacional
-                            |   expresion_relacional MENQUE expresion_relacional
-                            |   expresion_relacional IGUALQUE expresion_relacional
-                            |   expresion_relacional NIGUALQUE expresion_relacional
-                            |   expresion_relacional MAYORIGUAL expresion_relacional
-                            |   expresion_relacional MENORIGUAL expresion_relacional
-                            |   expresion_relacional OR expresion_relacional
-                            |   expresion_relacional AND expresion_relacional''' 
+    '''expresion     :      expresion MAYQUE expresion
+                        |   expresion MENQUE expresion
+                        |   expresion IGUALQUE expresion
+                        |   expresion NIGUALQUE expresion
+                        |   expresion MAYORIGUAL expresion
+                        |   expresion MENORIGUAL expresion
+                        |   expresion OR expresion
+                        |   expresion AND expresion''' 
     
     if t[2] == '>'    : t[0] = ExpresionRelacionalBinaria(t[1], t[3], OPERACION_LOGICA.MAYOR_QUE)
     elif t[2] == '<'  : t[0] = ExpresionRelacionalBinaria(t[1], t[3], OPERACION_LOGICA.MENOR_QUE)
@@ -249,7 +233,7 @@ def p_expresion_relacional(t):
     elif t[2] == '&&'   : t[0] = ExpresionLogicaBinaria(t[1],t[3], OPERACION_LOGICA.AND)
 
 def p_expresion_logica_unaria(t):
-    'expresion_relacional       :   ADMIR expresion_relacional %prec NOT'
+    'expresion       :   ADMIR expresion %prec NOT'
     t[0] = ExpresionNot(t[2])
 
 # Error sintactico

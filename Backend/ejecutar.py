@@ -97,74 +97,42 @@ def resolver_expresion(exp, ts):
             return ExpresionLogicaTF(not exp1.val, TIPO_DATO.BOOLEAN)
         else:
             return ExpresionDobleComilla("Error -> No son de tipo boolean", TIPO_DATO.STRING)
-    elif isinstance(exp, ExpresionLogicaTF):
-        return exp
-    elif isinstance(exp, ExpresionDobleComilla) :
-        return exp
     elif isinstance(exp, ExpresionBinaria) :
         
         exp1 = resolver_expresion(exp.exp1, ts)
         exp2 = resolver_expresion(exp.exp2, ts)
 
-        if(exp1.tipo == exp2.tipo):
+        if((exp1.tipo == TIPO_DATO.INT64 and exp2.tipo == TIPO_DATO.INT64 ) or (exp1.tipo == TIPO_DATO.FLOAT64 and exp2.tipo == TIPO_DATO.FLOAT64 )):
             if exp.operador == OPERACION_ARITMETICA.MAS : return ExpresionNumero(exp1.val + exp2.val,exp1.tipo)
             if exp.operador == OPERACION_ARITMETICA.MENOS : return ExpresionNumero(exp1.val - exp2.val,exp1.tipo)
             if exp.operador == OPERACION_ARITMETICA.POR : return ExpresionNumero(exp1.val * exp2.val,exp1.tipo)
             if exp.operador == OPERACION_ARITMETICA.DIVIDIDO : return ExpresionNumero(exp1.val / exp2.val,TIPO_DATO.FLOAT64)
             if exp.operador == OPERACION_ARITMETICA.MODULO : return ExpresionNumero(exp1.val % exp2.val,exp1.tipo)  
         else:
-            return ExpresionDobleComilla("Error -> No son del mismo tipo", TIPO_DATO.STRING)
+            return ExpresionDobleComilla("Error -> No se puede operar", TIPO_DATO.STRING)
         
     elif isinstance(exp, ExpresionPotencia) :
         exp1 = resolver_expresion(exp.exp1, ts)
         exp2 = resolver_expresion(exp.exp2, ts)
 
-        if(exp1.tipo == exp2.tipo):
+        if((exp1.tipo == TIPO_DATO.INT64 and exp2.tipo == TIPO_DATO.INT64 ) or (exp1.tipo == TIPO_DATO.FLOAT64 and exp2.tipo == TIPO_DATO.FLOAT64 )):
             if(exp1.tipo == exp.tipo):
                 return ExpresionNumero(exp1.val ** exp2.val, exp.tipo)
-        
-        return ExpresionDobleComilla("Error -> No son del mismo tipo", TIPO_DATO.STRING)
-       
+            else:
+                return ExpresionDobleComilla("Error -> No es del tipo correcto", TIPO_DATO.STRING)
+        else:
+            return ExpresionDobleComilla("Error -> No se puede operar", TIPO_DATO.STRING)
+                  
     elif isinstance(exp, ExpresionNegativo) :
         exp = resolver_expresion(exp.exp, ts)
-        return ExpresionNumero(exp.val*-1,exp.tipo)
-    elif isinstance(exp, ExpresionNumero) :
+        if(exp.tipo == TIPO_DATO.INT64 or exp1.tipo == TIPO_DATO.FLOAT64):
+            return ExpresionNumero(exp.val*-1,exp.tipo)
+        else:
+            return ExpresionDobleComilla("Error -> No se puede operar", TIPO_DATO.STRING)
+    elif isinstance(exp, ExpresionNumero) or isinstance(exp, ExpresionLogicaTF) or isinstance(exp, ExpresionDobleComilla):
         return exp
     elif isinstance(exp, ExpresionIdentificador) :
         return ts.obtener(exp.id)
     else :
-        print('Error: Expresión cadena no válida')
+        print('Error: Expresión no válida')
 
-
-'''def resolver_expresion_aritmetica(expNum, ts) :
-    if isinstance(expNum, ExpresionBinaria) :
-        
-        exp1 = resolver_expresion_aritmetica(expNum.exp1, ts)
-        exp2 = resolver_expresion_aritmetica(expNum.exp2, ts)
-
-        if(exp1.tipo == exp2.tipo):
-            if expNum.operador == OPERACION_ARITMETICA.MAS : return ExpresionNumero(exp1.val + exp2.val,exp1.tipo)
-            if expNum.operador == OPERACION_ARITMETICA.MENOS : return ExpresionNumero(exp1.val - exp2.val,exp1.tipo)
-            if expNum.operador == OPERACION_ARITMETICA.POR : return ExpresionNumero(exp1.val * exp2.val,exp1.tipo)
-            if expNum.operador == OPERACION_ARITMETICA.DIVIDIDO : return ExpresionNumero(exp1.val / exp2.val,TIPO_DATO.FLOAT64)
-            if expNum.operador == OPERACION_ARITMETICA.MODULO : return ExpresionNumero(exp1.val % exp2.val,exp1.tipo)  
-        else:
-            return ExpresionDobleComilla("Error -> No son del mismo tipo")
-        
-    elif isinstance(expNum, ExpresionPotencia) :
-        exp1 = resolver_expresion_aritmetica(expNum.exp1, ts)
-        exp2 = resolver_expresion_aritmetica(expNum.exp2, ts)
-
-        if(exp1.tipo == exp2.tipo):
-            if(exp1.tipo == expNum.tipo):
-                return ExpresionNumero(exp1.val ** exp2.val, expNum.tipo)
-        
-        return ExpresionDobleComilla("Error -> No son del mismo tipo")
-       
-    elif isinstance(expNum, ExpresionNegativo) :
-        exp = resolver_expresion_aritmetica(expNum.exp, ts)
-        return ExpresionNumero(exp.val*-1,exp.tipo)
-    elif isinstance(expNum, ExpresionNumero) :
-        return expNum
-    elif isinstance(expNum, ExpresionIdentificador) :
-        return ts.obtener(expNum.id)'''
