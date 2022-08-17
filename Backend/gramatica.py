@@ -1,5 +1,4 @@
 
-
 reservadas = {
     'println': 'PRINTLN',
     'powf'   : 'POWF',
@@ -8,10 +7,12 @@ reservadas = {
     'f64'    : 'FLOAT',
     'bool'   : 'BOOLEAN',
     'char'   : 'CHAR',
-    '&str'   : 'ISTRING',
+    'str'   : 'ISTRING',
     'String' : 'STRING',
     'true'   : 'TRUE',
-    'false'  : 'FALSE'
+    'false'  : 'FALSE',
+    'let'    : 'LET',
+    'mut'    : 'MUT'
 }
 
 tokens  = [
@@ -28,7 +29,6 @@ tokens  = [
     'POR',
     'DIVIDIDO',
     'MODULO',
-    #'CONCAT',
     'MAYORIGUAL',
     'MENORIGUAL',
     'MENQUE',
@@ -41,7 +41,8 @@ tokens  = [
     'ENTERO',
     'CADENA',
     'ID',
-    'ADMIR'
+    'ADMIR',
+    'I'
 ] + list(reservadas.values())
 
 # Tokens
@@ -58,7 +59,6 @@ t_MENOS     = r'-'
 t_POR       = r'\*'
 t_DIVIDIDO  = r'/'
 t_MODULO    = r'%'
-#t_CONCAT    = r'&'
 t_MAYORIGUAL = r'>='
 t_MENORIGUAL = r'<='
 t_MENQUE    = r'<'
@@ -68,6 +68,7 @@ t_NIGUALQUE = r'!='
 t_OR        = r'\|\|'
 t_AND       = r'&&'
 t_ADMIR     = r'!'
+t_I         = r'&'
 
 
 def t_DECIMAL(t):
@@ -130,6 +131,7 @@ precedence = (
 from expresiones import *
 from instrucciones import *
 from ts import TIPO_DATO
+from ts import TIPO_VAR
 
 def p_init(t) :
     'inicio            : instrucciones'
@@ -145,16 +147,62 @@ def p_instrucciones_instruccion(t) :
     t[0] = [t[1]]
 
 def p_instruccion(t) :
-    '''instruccion      :   imprimir_instr'''
+    '''instruccion      :   imprimir_instr
+                        |   definicion_instr 
+                        |   asignacion_instr'''
     t[0] = t[1]
+
+def p_asignacion_instr(t) :
+    'asignacion_instr   : ID IGUAL expresion PTCOMA'
+    t[0] = Asignacion(t[1], t[3])
+
+def p_instruccion_definicionMT(t):
+    '''definicion_instr :   LET MUT ID DOSPUNTOS tipos IGUAL expresion PTCOMA'''
+    t[0] = Definicion(t[3],TIPO_VAR.MUTABLE, t[5],t[7])
+
+def p_instruccion_definicionIT(t):
+    '''definicion_instr :   LET ID DOSPUNTOS tipos IGUAL expresion PTCOMA'''
+    t[0] = Definicion(t[2],TIPO_VAR.INMUTABLE, t[4], t[6])
+
+def p_instruccion_definicionM(t):
+    '''definicion_instr :   LET MUT ID IGUAL expresion PTCOMA'''
+    t[0] = Definicion(t[3],TIPO_VAR.MUTABLE, TIPO_DATO.VOID, t[5])
+
+def p_instruccion_definicionI(t):
+    '''definicion_instr :   LET ID IGUAL expresion PTCOMA'''
+    t[0] = Definicion(t[2],TIPO_VAR.INMUTABLE,TIPO_DATO.VOID,t[4])
+
+def p_tiposInt(t):
+    '''tipos            :   INT'''
+    t[0] = TIPO_DATO.INT64
+
+def p_tiposFloat(t):
+    '''tipos            :   FLOAT'''
+    t[0] = TIPO_DATO.FLOAT64
+
+def p_tiposBool(t):
+    '''tipos            :   BOOLEAN'''
+    t[0] = TIPO_DATO.BOOLEAN
+
+def p_tiposChar(t):
+    '''tipos            :   CHAR'''
+    t[0] = TIPO_DATO.CHAR
+
+def p_tiposStr(t):
+    '''tipos            :   STRING'''
+    t[0] = TIPO_DATO.STRING
+
+def p_tiposIStr(t):
+    '''tipos            :   I ISTRING'''
+    t[0] = TIPO_DATO.ISTRING
 
 def p_instruccion_imprimir(t) :
     '''imprimir_instr     : PRINTLN ADMIR PARIZQ CADENA PARDER PTCOMA'''
-    t[0] =Imprimir(ExpresionDobleComilla(t[4], TIPO_DATO.STRING),parametros=[])
+    t[0] =Imprimir(ExpresionDobleComilla(t[4], TIPO_DATO.ISTRING),parametros=[])
 
 def p_instruccion_imprimir_p(t) :
     '''imprimir_instr     : PRINTLN ADMIR PARIZQ CADENA pparam PARDER PTCOMA'''
-    t[0] =Imprimir(ExpresionDobleComilla(t[4], TIPO_DATO.STRING), t[5])
+    t[0] =Imprimir(ExpresionDobleComilla(t[4], TIPO_DATO.ISTRING), t[5])
 
 def p_lpparam(t):
     '''pparam                : pparam COMA expresion'''
@@ -203,7 +251,7 @@ def p_expresion_numberd(t):
 
 def p_expresion_cadena(t) :
     'expresion     : CADENA'
-    t[0] = ExpresionDobleComilla(t[1],TIPO_DATO.STRING)
+    t[0] = ExpresionDobleComilla(t[1],TIPO_DATO.ISTRING)
 
 def p_expresion_logicaT(t) :
     'expresion     : TRUE'
@@ -212,6 +260,10 @@ def p_expresion_logicaT(t) :
 def p_expresion_logicaF(t) :
     'expresion    : FALSE'
     t[0] = ExpresionLogicaTF(False, TIPO_DATO.BOOLEAN)
+
+def p_expresion_id(t):
+    'expresion     : ID'
+    t[0] = ExpresionIdentificador(t[1])
 
 def p_expresion_relacional(t):
     '''expresion     :      expresion MAYQUE expresion

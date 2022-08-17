@@ -1,3 +1,4 @@
+from ts import Simbolo
 from ts import TIPO_DATO
 from expresiones import *
 from instrucciones import *
@@ -11,6 +12,8 @@ def procesar_instrucciones(instrucciones, ts) :
     if instrucciones != None:
         for instr in instrucciones :
             if isinstance(instr, Imprimir) : consola += procesar_imprimir(instr, ts) 
+            elif isinstance(instr,Definicion): procesar_definicion(instr,ts)
+            elif isinstance(instr,Asignacion): procesar_asignacion(instr,ts)
 
     return consola
 
@@ -23,14 +26,7 @@ def procesar_imprimir(instr, ts) :
         error = False
         for param in instr.parametros:
             aux = resolver_expresion(param, ts)
-            print(param)
-            if(isinstance(aux, ExpresionLogicaTF)):
-                if(aux.val):
-                   aux = "true"
-                else:
-                   aux = "false"
-            else:
-                aux = str(aux.val)
+            aux = to_text(aux)
 
             escribir = True
             primero = False
@@ -62,13 +58,6 @@ def procesar_imprimir(instr, ts) :
                 break
 
         return '\n> ' + cadena
-
-
-#def resolver_cadena(expCad, ts) :
-#  if isinstance(expCad, ExpresionDobleComilla) :
-#       return expCad.val
-#   else :
-#       print('Error: Expresión cadena no válida')
 
 def resolver_expresion(exp, ts):
     if isinstance(exp, ExpresionRelacionalBinaria):
@@ -132,7 +121,23 @@ def resolver_expresion(exp, ts):
     elif isinstance(exp, ExpresionNumero) or isinstance(exp, ExpresionLogicaTF) or isinstance(exp, ExpresionDobleComilla):
         return exp
     elif isinstance(exp, ExpresionIdentificador) :
-        return ts.obtener(exp.id)
+        return ts.obtenerSimbolo(exp.id).valor
     else :
         print('Error: Expresión no válida')
 
+def procesar_definicion(instr, ts):
+    simbolo = TS.Simbolo(instr.id,instr.tipo_var,instr.tipo_dato,instr.dato)
+    ts.agregarSimbolo(simbolo)
+
+def to_text(valor):
+    if(isinstance(valor, ExpresionLogicaTF)):
+        if(valor.val):
+           return "true"
+        else:
+           return "false"
+    else:
+        return str(valor.val)
+
+def procesar_asignacion(instr,ts):
+    val = resolver_expresion(instr.exp, ts)
+    ts.actualizarSimbolo(instr.id, val)
