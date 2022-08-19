@@ -31,6 +31,24 @@ class Asignacion(Instruccion) :
         self.id = id
         self.exp = exp
 
+class If(Instruccion) : 
+    '''
+        Esta clase representa la instrucción if.
+        La instrucción if recibe como parámetro una expresión lógica y la lista
+        de instrucciones a ejecutar si la expresión lógica es verdadera.
+    '''
+
+    def __init__(self, exp, instrucciones = []) :
+        self.exp = exp
+        self.instrucciones = instrucciones
+
+class IfElse(Instruccion) : 
+
+    def __init__(self, exp, instrIfVerdadero = [], instrIfFalso = []) :
+        self.exp= exp
+        self.instrIfVerdadero = instrIfVerdadero
+        self.instrIfFalso = instrIfFalso
+
 class Funcion(Instruccion):
     def __init__(self, id, parametros, instrucciones, tipo_dato):
         self.id = id

@@ -3,6 +3,7 @@ from ts import TIPO_DATO
 from expresiones import *
 from instrucciones import *
 import ts as TS
+import math
 
 
 def procesar_instrucciones(instrucciones, ts) :
@@ -14,8 +15,37 @@ def procesar_instrucciones(instrucciones, ts) :
             if isinstance(instr, Imprimir) : consola += procesar_imprimir(instr, ts) 
             elif isinstance(instr,Definicion): procesar_definicion(instr,ts)
             elif isinstance(instr,Asignacion): procesar_asignacion(instr,ts)
+            elif isinstance(instr, If): consola += procesar_if(instr,ts)
+            elif isinstance(instr,IfElse): consola += procesar_ifelse(instr,ts)
 
     return consola
+
+def procesar_ifelse(instr, ts):
+    val = resolver_expresion(instr.exp, ts)
+    if val.tipo == TIPO_DATO.BOOLEAN:
+        if val.val:
+            ts_local = TS.TablaDeSimbolos(ts.simbolos)
+            return procesar_instrucciones(instr.instrIfVerdadero, ts_local)[13:]
+        else:
+            if isinstance(instr.instrIfFalso, If) or isinstance(instr.instrIfFalso, IfElse):
+                ts_local = TS.TablaDeSimbolos(ts.simbolos)
+                return procesar_instrucciones([instr.instrIfFalso], ts_local)[13:]
+            else:
+                ts_local = TS.TablaDeSimbolos(ts.simbolos)
+                return procesar_instrucciones(instr.instrIfFalso, ts_local)[13:]
+    else:
+        return "Error -> Debe de ser expresion booleana"
+
+def procesar_if(instr, ts):
+    val = resolver_expresion(instr.exp, ts)
+    if val.tipo == TIPO_DATO.BOOLEAN:
+        if val.val:
+            ts_local = TS.TablaDeSimbolos(ts.simbolos)
+            return procesar_instrucciones(instr.instrucciones, ts_local)[13:]
+        else:
+            return ""
+    else:
+        return "Error -> Debe de ser expresion booleana"
 
 def procesar_imprimir(instr, ts) :
     if(len(instr.parametros)==0):
@@ -95,7 +125,11 @@ def resolver_expresion(exp, ts):
             if exp.operador == OPERACION_ARITMETICA.MAS : return ExpresionNumero(exp1.val + exp2.val,exp1.tipo)
             if exp.operador == OPERACION_ARITMETICA.MENOS : return ExpresionNumero(exp1.val - exp2.val,exp1.tipo)
             if exp.operador == OPERACION_ARITMETICA.POR : return ExpresionNumero(exp1.val * exp2.val,exp1.tipo)
-            if exp.operador == OPERACION_ARITMETICA.DIVIDIDO : return ExpresionNumero(exp1.val / exp2.val,TIPO_DATO.FLOAT64)
+            if exp.operador == OPERACION_ARITMETICA.DIVIDIDO : 
+                if exp1.tipo == TIPO_DATO.INT64 :
+                    return ExpresionNumero(math.trunc(exp1.val / exp2.val),exp1.tipo)
+                else:
+                    return ExpresionNumero(exp1.val / exp2.val,exp1.tipo)
             if exp.operador == OPERACION_ARITMETICA.MODULO : return ExpresionNumero(exp1.val % exp2.val,exp1.tipo)  
         else:
             return ExpresionDobleComilla("Error -> No se puede operar", TIPO_DATO.STRING)
@@ -126,7 +160,8 @@ def resolver_expresion(exp, ts):
         print('Error: Expresión no válida')
 
 def procesar_definicion(instr, ts):
-    simbolo = TS.Simbolo(instr.id,instr.tipo_var,instr.tipo_dato,instr.dato)
+    val = resolver_expresion(instr.dato, ts)
+    simbolo = TS.Simbolo(instr.id,instr.tipo_var,instr.tipo_dato,val)
     ts.agregarSimbolo(simbolo)
 
 def to_text(valor):

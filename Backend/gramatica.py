@@ -7,12 +7,14 @@ reservadas = {
     'f64'    : 'FLOAT',
     'bool'   : 'BOOLEAN',
     'char'   : 'CHAR',
-    'str'   : 'ISTRING',
+    'str'    : 'ISTRING',
     'String' : 'STRING',
     'true'   : 'TRUE',
     'false'  : 'FALSE',
     'let'    : 'LET',
-    'mut'    : 'MUT'
+    'mut'    : 'MUT',
+    'if'     : 'IF',
+    'else'   : 'ELSE'
 }
 
 tokens  = [
@@ -149,8 +151,29 @@ def p_instrucciones_instruccion(t) :
 def p_instruccion(t) :
     '''instruccion      :   imprimir_instr
                         |   definicion_instr 
-                        |   asignacion_instr'''
+                        |   asignacion_instr
+                        |   if_instr'''
     t[0] = t[1]
+
+def p_if_instr(t) :
+    'if_instr           : IF expresion statement'
+    t[0] =If(t[2], t[3])
+
+def p_if_else_instr(t) :
+    'if_instr     : IF expresion statement ELSE statement'
+    t[0] =IfElse(t[2], t[3], t[5])
+
+def p_if_elseif_instr(t) :
+    'if_instr     : IF expresion statement ELSE if_instr'
+    t[0] =IfElse(t[2], t[3], t[5])
+
+def p_statement(t):
+    'statement          :   LLAVIZQ instrucciones LLAVDER'
+    t[0] = t[2]
+
+def p_statement_vacion(t):
+    'statement          :   LLAVIZQ LLAVDER'
+    t[0] = []
 
 def p_asignacion_instr(t) :
     'asignacion_instr   : ID IGUAL expresion PTCOMA'
@@ -290,7 +313,7 @@ def p_expresion_logica_unaria(t):
 
 # Error sintactico
 def p_error(p):
-    print(f'Error de sintaxis {p.value!r}')
+    print(f'Error de sintaxis {p.value!r} en {p.lineno!r}')
 
 from ply.yacc import yacc
 parser = yacc(debug=True)

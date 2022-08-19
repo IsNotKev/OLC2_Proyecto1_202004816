@@ -40,10 +40,15 @@ class TablaDeSimbolos() :
 
     def agregarSimbolo(self, simbolo) :
         if simbolo.valor != None:
-            if simbolo.tipo_dato == simbolo.valor.tipo:        
-                self.simbolos[simbolo.id] = simbolo
+            if simbolo.tipo_dato != TIPO_DATO.VOID:
+                if simbolo.tipo_dato == simbolo.valor.tipo:        
+                    self.simbolos[simbolo.id] = simbolo
+                else:
+                    print('Error al asignar')
             else:
-                print('Error al asignar')
+                simbolo.tipo_dato = simbolo.valor.tipo
+                self.simbolos[simbolo.id] = simbolo
+
         else:
             self.simbolos[simbolo.id] = simbolo
     
