@@ -21,8 +21,23 @@ def procesar_instrucciones(instrucciones, ts) :
             elif isinstance(instr,While): consola += procesar_while(instr,ts)
             elif isinstance(instr,Funcion): procesar_funcion(instr,ts)
             elif isinstance(instr,Llamado): consola += procesar_llamado(instr,ts)
+            elif isinstance(instr,Match): consola += procesar_match(instr,ts)
 
     return consola
+
+def procesar_match(instr,ts):
+    val = resolver_expresion(instr.exp,ts)
+    for opcion in instr.opciones:
+        print(opcion.coincidencias)
+        if opcion.coincidencias == TIPO_DATO.VOID:
+            return procesar_instrucciones(opcion.instrucciones,ts)[13:]
+        else:
+            for coincidencia in opcion.coincidencias:
+                cc = resolver_expresion(coincidencia,ts)
+                if val.tipo == cc.tipo and val.val == cc.val:
+                    return procesar_instrucciones(opcion.instrucciones,ts)[13:]
+    
+    return ""
 
 def procesar_llamado(instr,ts):
     funcion = ts.obtenerFuncion(instr.id)
@@ -39,7 +54,6 @@ def procesar_llamado(instr,ts):
     else:
         print("Error en cantidad de Parametros")
         return "Error en cantidad de Parametros"
-
 
 def procesar_funcion(instr,ts):
     ts.agregarFuncion(instr)
@@ -188,7 +202,33 @@ def resolver_expresion(exp, ts):
             return ExpresionNumero(exp.val*-1,exp.tipo)
         else:
             return ExpresionDobleComilla("Error -> No se puede operar", TIPO_DATO.STRING)
-    elif isinstance(exp, ExpresionNumero) or isinstance(exp, ExpresionLogicaTF) or isinstance(exp, ExpresionDobleComilla):
+    elif isinstance(exp, ExpresionIf):
+        cond = resolver_expresion(exp.exp,ts)
+        if cond.tipo == TIPO_DATO.BOOLEAN:
+            if cond.val:
+                return resolver_expresion(exp.instrIfVerdadero,ts)
+            else:
+                return resolver_expresion(exp.instrIfFalso,ts)
+        else:
+            return ExpresionDobleComilla("Error -> Expresion If Necesita boolean", TIPO_DATO.STRING)
+    elif isinstance(exp, ExpresionMatch):
+        val = resolver_expresion(exp.exp,ts)
+        for opcion in exp.opciones:
+            if opcion.coincidencias == TIPO_DATO.VOID:
+                return resolver_expresion(opcion.instrucciones,ts)
+            else:
+                for coincidencia in opcion.coincidencias:
+                    cc = resolver_expresion(coincidencia,ts)
+                    if cc.tipo == val.tipo and cc.val == val.val:
+                        return resolver_expresion(opcion.instrucciones,ts)
+        
+        print("No hay coincidencias")
+        return ExpresionDobleComilla("No hay coincidencias", TIPO_DATO.STRING)
+    elif isinstance(exp,ToString):
+        val = resolver_expresion(exp.dato,ts)
+        return ExpresionDobleComilla(to_text(val),TIPO_DATO.STRING)
+
+    elif isinstance(exp, ExpresionNumero) or isinstance(exp, ExpresionLogicaTF) or isinstance(exp, ExpresionDobleComilla) or isinstance(exp,ExpresionCaracter):
         return exp
     elif isinstance(exp, ExpresionIdentificador) :
         return ts.obtenerSimbolo(exp.id).valor

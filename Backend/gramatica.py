@@ -18,11 +18,17 @@ reservadas = {
     'while'  : 'WHILE',
     'for'    : 'FOR',
     'in'     : 'IN',
-    'fn'     : 'FN'
+    'fn'     : 'FN',
+    'match'  : 'MATCH',
+    '_'      : 'DEFAULT',
+    'to_string' : 'TOSTRING',
+    'to_owned'  : 'TOOWNED'
 }
 
 tokens  = [
-#    'FLECHA',
+    'PUNTO',
+    'FLECHA',
+    'FLECHAMATCH',
     'PTCOMA',
     'DOSPUNTOS',
     'COMA',
@@ -43,17 +49,21 @@ tokens  = [
     'IGUALQUE',
     'NIGUALQUE',
     'OR',
+    'O',
     'AND',
     'DECIMAL',
     'ENTERO',
     'CADENA',
+    'CARACTER',
     'ID',
     'ADMIR',
-    'I'
+    'I' 
 ] + list(reservadas.values())
 
 # Tokens
-#t_FLECHA    = r'->'
+t_PUNTO     = r'\.'
+t_FLECHA    = r'\-\>'
+t_FLECHAMATCH = r'\=\>'
 t_PTCOMA    = r';'
 t_DOSPUNTOS = r':'
 t_COMA      = r','
@@ -74,10 +84,10 @@ t_MAYQUE    = r'>'
 t_IGUALQUE  = r'=='
 t_NIGUALQUE = r'!='
 t_OR        = r'\|\|'
+t_O        = r'\|'
 t_AND       = r'&&'
 t_ADMIR     = r'!'
 t_I         = r'&'
-
 
 def t_DECIMAL(t):
     r'\d+\.\d+'
@@ -99,6 +109,11 @@ def t_ENTERO(t):
 
 def t_CADENA(t):
     r'\".*?\"'
+    t.value = t.value[1:-1] # remuevo las comillas
+    return t 
+
+def t_CARACTER(t):
+    r'\'.*?\''
     t.value = t.value[1:-1] # remuevo las comillas
     return t 
 
@@ -151,25 +166,79 @@ def p_instrucciones_lista(t) :
     t[0] = t[1]
 
 def p_instrucciones_instruccion(t) :
-    'instrucciones    : instruccion '
+    'instrucciones    : instruccion'
     t[0] = [t[1]]
 
 def p_instruccion(t) :
-    '''instruccion      :   imprimir_instr
-                        |   definicion_instr 
-                        |   asignacion_instr
+    '''instruccion      :   imprimir_instr PTCOMA
+                        |   definicion_instr PTCOMA
+                        |   asignacion_instr PTCOMA
                         |   if_instr
                         |   while_instr
                         |   funcion_instr
-                        |   llamado_instr'''
+                        |   llamado_instr PTCOMA
+                        |   match_instr'''
     t[0] = t[1]
 
+def p_match_instr(t):
+    'match_instr        : MATCH expresion LLAVIZQ lismatch LLAVDER'
+    t[0] = Match(t[2],t[4])
+
+def p_match_instr_v(t):
+    'match_instr        : MATCH expresion LLAVIZQ LLAVDER'
+    t[0] = Match(t[2],[])
+
+def p_llismatch(t):
+    'lismatch          :   lismatch instrmatch'
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_lismatch(t):
+    'lismatch           : instrmatch'
+    t[0] = [t[1]]
+
+def p_instrsmatch(t):
+    'instrmatch         : listcoincidencia FLECHAMATCH statement'
+    t[0] = OpcionMatch(t[1],t[3])
+
+def p_instrmatch(t):
+    'instrmatch         : listcoincidencia FLECHAMATCH instruccion_match COMA'
+    t[0] = OpcionMatch(t[1],[t[3]])
+
+def p_instrmatch_default(t):
+    'instrmatch         :  DEFAULT FLECHAMATCH instruccion_match COMA'
+    t[0] = OpcionMatch(TIPO_DATO.VOID,[t[3]])
+
+def p_instrsmatch_default(t):
+    'instrmatch         :  DEFAULT FLECHAMATCH statement'
+    t[0] = OpcionMatch(TIPO_DATO.VOID,t[3])
+
+def p_instrdmatch(t):
+    '''instruccion_match    :   imprimir_instr
+                            |   definicion_instr
+                            |   asignacion_instr
+                            |   if_instr
+                            |   while_instr
+                            |   funcion_instr
+                            |   llamado_instr
+                            |   match_instr'''
+    t[0] = t[1]
+
+def p_llistcoincidencia(t):
+    'listcoincidencia   :   listcoincidencia O expresion'
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_listcoincidencia(t):
+    'listcoincidencia   :  expresion'
+    t[0] = [t[1]]
+
 def p_llamado_instr(t):
-    'llamado_instr      :   ID PARIZQ PARDER PTCOMA'
+    'llamado_instr      :   ID PARIZQ PARDER'
     t[0] = Llamado(t[1],[])
 
 def p_llamado_instr_CP(t):
-    'llamado_instr      :   ID PARIZQ llparams PARDER PTCOMA'
+    'llamado_instr      :   ID PARIZQ llparams PARDER'
     t[0] = Llamado(t[1],t[3])
 
 def p_lllamadoparams(t):
@@ -185,17 +254,17 @@ def p_funcion_intr_SP(t):
     'funcion_instr    :   FN ID PARIZQ PARDER statement'
     t[0] = Funcion(t[2],[],TIPO_DATO.VOID,t[5])
 
-#def p_funcion_ctipo_intr_SP(t):
-#    'funcion_instr    :   FN ID PARIZQ PARDER FLECHA tipos statement'
-#    t[0] = Funcion(t[2],[],t[6],t[7])
+def p_funcion_ctipo_intr_SP(t):
+    'funcion_instr    :   FN ID PARIZQ PARDER FLECHA tipos statement'
+    t[0] = Funcion(t[2],[],t[6],t[7])
 
 def p_funcion_intr(t):
     'funcion_instr    :   FN ID PARIZQ fparam PARDER statement'
     t[0] = Funcion(t[2],t[4],TIPO_DATO.VOID,t[6])
 
-#def p_funcion_ctipo_intr(t):
-#    'funcion_instr    :   FN ID PARIZQ fparam PARDER FLECHA tipos statement'
-#    t[0] = Funcion(t[2],t[4],t[7],t[8])
+def p_funcion_ctipo_intr(t):
+    'funcion_instr    :   FN ID PARIZQ fparam PARDER FLECHA tipos statement'
+    t[0] = Funcion(t[2],t[4],t[7],t[8])
 
 def p_listafparams(t):
     'fparam         :       fparam COMA fparametro'
@@ -239,23 +308,23 @@ def p_statement_vacio(t):
     t[0] = []
 
 def p_asignacion_instr(t) :
-    'asignacion_instr   : ID IGUAL expresion PTCOMA'
+    'asignacion_instr   : ID IGUAL expresion'
     t[0] = Asignacion(t[1], t[3])
 
 def p_instruccion_definicionMT(t):
-    '''definicion_instr :   LET MUT ID DOSPUNTOS tipos IGUAL expresion PTCOMA'''
+    '''definicion_instr :   LET MUT ID DOSPUNTOS tipos IGUAL expresion'''
     t[0] = Definicion(t[3],TIPO_VAR.MUTABLE, t[5],t[7])
 
 def p_instruccion_definicionIT(t):
-    '''definicion_instr :   LET ID DOSPUNTOS tipos IGUAL expresion PTCOMA'''
+    '''definicion_instr :   LET ID DOSPUNTOS tipos IGUAL expresion'''
     t[0] = Definicion(t[2],TIPO_VAR.INMUTABLE, t[4], t[6])
 
 def p_instruccion_definicionM(t):
-    '''definicion_instr :   LET MUT ID IGUAL expresion PTCOMA'''
+    '''definicion_instr :   LET MUT ID IGUAL expresion'''
     t[0] = Definicion(t[3],TIPO_VAR.MUTABLE, TIPO_DATO.VOID, t[5])
 
 def p_instruccion_definicionI(t):
-    '''definicion_instr :   LET ID IGUAL expresion PTCOMA'''
+    '''definicion_instr :   LET ID IGUAL expresion'''
     t[0] = Definicion(t[2],TIPO_VAR.INMUTABLE,TIPO_DATO.VOID,t[4])
 
 def p_tiposInt(t):
@@ -283,11 +352,11 @@ def p_tiposIStr(t):
     t[0] = TIPO_DATO.ISTRING
 
 def p_instruccion_imprimir(t) :
-    '''imprimir_instr     : PRINTLN ADMIR PARIZQ CADENA PARDER PTCOMA'''
+    '''imprimir_instr     : PRINTLN ADMIR PARIZQ CADENA PARDER'''
     t[0] =Imprimir(ExpresionDobleComilla(t[4], TIPO_DATO.ISTRING),parametros=[])
 
 def p_instruccion_imprimir_p(t) :
-    '''imprimir_instr     : PRINTLN ADMIR PARIZQ CADENA pparam PARDER PTCOMA'''
+    '''imprimir_instr     : PRINTLN ADMIR PARIZQ CADENA pparam PARDER'''
     t[0] =Imprimir(ExpresionDobleComilla(t[4], TIPO_DATO.ISTRING), t[5])
 
 def p_lpparam(t):
@@ -339,6 +408,10 @@ def p_expresion_cadena(t) :
     'expresion     : CADENA'
     t[0] = ExpresionDobleComilla(t[1],TIPO_DATO.ISTRING)
 
+def p_expresion_caracter(t) :
+    'expresion     : CARACTER'
+    t[0] = ExpresionCaracter(t[1],TIPO_DATO.CHAR)
+
 def p_expresion_logicaT(t) :
     'expresion     : TRUE'
     t[0] = ExpresionLogicaTF(True, TIPO_DATO.BOOLEAN)
@@ -373,6 +446,52 @@ def p_expresion_relacional(t):
 def p_expresion_logica_unaria(t):
     'expresion       :   ADMIR expresion %prec NOT'
     t[0] = ExpresionNot(t[2])
+
+def p_expresion_init(t):
+    '''expresion    :   expresion_if
+                    |   expresion_match'''
+    t[0] = t[1]
+
+def p_expresion_match(t):
+    'expresion_match    :   MATCH expresion LLAVIZQ lmatchexp LLAVDER'
+    t[0] = ExpresionMatch(t[2], t[4])
+
+def p_llmatchexp(t):
+    'lmatchexp          :   lmatchexp matchexp'
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_lmatchexp(t):
+    'lmatchexp          :   matchexp'
+    t[0] = [t[1]]
+
+def p_matchexp(t):
+    'matchexp           :   listcoincidencia FLECHAMATCH expresion COMA'
+    t[0] = OpcionMatch(t[1],t[3])
+
+def p_matchexp_default(t):
+    'matchexp           :   DEFAULT FLECHAMATCH expresion COMA'
+    t[0] = OpcionMatch(TIPO_DATO.VOID,t[3])
+
+def p_expresion_if(t):
+    'expresion_if      :       IF expresion statement_expresion ELSE statement_expresion'
+    t[0] = ExpresionIf(t[2],t[3],t[5])
+
+def p_expresion_if_elif(t):
+    'expresion_if      :       IF expresion statement_expresion ELSE expresion_if'
+    t[0] = ExpresionIf(t[2],t[3],t[5])
+
+def p_statement_expresion(t):
+    'statement_expresion    :   LLAVIZQ expresion LLAVDER'
+    t[0] = t[2]
+
+def p_to_string(t):
+    'expresion  :   expresion PUNTO TOSTRING PARIZQ PARDER'
+    t[0] = ToString(t[1])
+
+def p_to_owned(t):
+    'expresion  :   expresion PUNTO TOOWNED PARIZQ PARDER'
+    t[0] = ToString(t[1])
 
 # Error sintactico
 def p_error(p):

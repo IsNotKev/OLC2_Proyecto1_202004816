@@ -95,6 +95,12 @@ class ExpresionDobleComilla(ExpresionCadena) :
         self.val = val
         self.tipo = tipo
 
+class ExpresionCaracter(ExpresionCadena) :
+    def __init__(self, val, tipo) :
+        self.val = val
+        self.tipo = tipo
+
+
 class ExpresionLogica :
     '''
        Esta clase representa una Expresión de tipo Logica.
@@ -120,3 +126,20 @@ class ExpresionLogicaTF(ExpresionLogica):
     def __init__(self, val, tipo) :
         self.val = val
         self.tipo = tipo
+
+class ExpresionSentencia:
+    '''
+       Esta clase representa una Expresión de tipo Sentencia.
+    '''
+
+class ExpresionIf(ExpresionSentencia):
+    def __init__(self, exp, instrIfVerdadero = [], instrIfFalso = []) :
+        self.exp= exp
+        self.instrIfVerdadero = instrIfVerdadero
+        self.instrIfFalso = instrIfFalso
+
+class ExpresionMatch(ExpresionSentencia):
+    def __init__(self,exp,opciones):
+        self.exp = exp
+        self.opciones = opciones
+        

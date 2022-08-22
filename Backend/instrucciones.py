@@ -65,3 +65,17 @@ class Llamado(Instruccion):
     def __init__(self,id,parametros):
         self.id = id
         self.parametros = parametros
+
+class Match(Instruccion):
+    def __init__(self, exp, opciones):
+        self.exp = exp
+        self.opciones = opciones
+
+class OpcionMatch(Instruccion):
+    def __init__(self, coincidencias, instrucciones):
+        self.coincidencias = coincidencias
+        self.instrucciones = instrucciones
+
+class ToString(Instruccion):
+    def __init__(self, dato):
+        self.dato = dato
