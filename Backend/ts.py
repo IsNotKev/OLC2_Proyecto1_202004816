@@ -52,6 +52,15 @@ class TablaDeSimbolos() :
         else:
             self.simbolos[simbolo.id] = simbolo
     
+    def agregarFuncion(self, funcion):
+        self.funciones[funcion.id] = funcion
+    
+    def obtenerFuncion(self, id):
+        if not id in self.funciones :
+            print('Error: funcion ', id, ' no definida.')
+
+        return self.funciones[id]
+
     def obtenerSimbolo(self, id) :
         if not id in self.simbolos :
             print('Error: variable ', id, ' no definida.')

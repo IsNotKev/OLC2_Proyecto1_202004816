@@ -32,12 +32,6 @@ class Asignacion(Instruccion) :
         self.exp = exp
 
 class If(Instruccion) : 
-    '''
-        Esta clase representa la instrucción if.
-        La instrucción if recibe como parámetro una expresión lógica y la lista
-        de instrucciones a ejecutar si la expresión lógica es verdadera.
-    '''
-
     def __init__(self, exp, instrucciones = []) :
         self.exp = exp
         self.instrucciones = instrucciones
@@ -49,9 +43,25 @@ class IfElse(Instruccion) :
         self.instrIfVerdadero = instrIfVerdadero
         self.instrIfFalso = instrIfFalso
 
+class While(Instruccion):
+    def __init__(self, exp, instrucciones = []):
+        self.exp = exp
+        self.instrucciones = instrucciones
+
 class Funcion(Instruccion):
-    def __init__(self, id, parametros, instrucciones, tipo_dato):
+    def __init__(self, id, parametros,tipo_dato, instrucciones):
         self.id = id
         self.parametros = parametros
         self.instrucciones = instrucciones
         self.tipo_dato = tipo_dato
+
+class Parametro(Instruccion):
+    def __init__(self, id, tipo_dato,tipo_var):
+        self.id = id
+        self.tipo_dato = tipo_dato
+        self.tipo_var = tipo_var
+
+class Llamado(Instruccion):
+    def __init__(self,id,parametros):
+        self.id = id
+        self.parametros = parametros

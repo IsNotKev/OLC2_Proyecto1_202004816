@@ -1,3 +1,4 @@
+from sre_parse import WHITESPACE
 from ts import Simbolo
 from ts import TIPO_DATO
 from expresiones import *
@@ -17,8 +18,43 @@ def procesar_instrucciones(instrucciones, ts) :
             elif isinstance(instr,Asignacion): procesar_asignacion(instr,ts)
             elif isinstance(instr, If): consola += procesar_if(instr,ts)
             elif isinstance(instr,IfElse): consola += procesar_ifelse(instr,ts)
+            elif isinstance(instr,While): consola += procesar_while(instr,ts)
+            elif isinstance(instr,Funcion): procesar_funcion(instr,ts)
+            elif isinstance(instr,Llamado): consola += procesar_llamado(instr,ts)
 
     return consola
+
+def procesar_llamado(instr,ts):
+    funcion = ts.obtenerFuncion(instr.id)
+
+    ts_local = TS.TablaDeSimbolos()
+
+    if len(instr.parametros) == len(funcion.parametros):
+        for num in range(0,len(funcion.parametros),1):
+            val = resolver_expresion(instr.parametros[num], ts)
+            nsimbolo = Simbolo(funcion.parametros[num].id,funcion.parametros[num].tipo_var, funcion.parametros[num].tipo_dato,val)
+            ts_local.agregarSimbolo(nsimbolo)
+
+        return procesar_instrucciones(funcion.instrucciones,ts_local)[13:]
+    else:
+        print("Error en cantidad de Parametros")
+        return "Error en cantidad de Parametros"
+
+
+def procesar_funcion(instr,ts):
+    ts.agregarFuncion(instr)
+
+def procesar_while(instr, ts):
+    val = resolver_expresion(instr.exp, ts)
+    if val.tipo == TIPO_DATO.BOOLEAN:
+        ts_local = TS.TablaDeSimbolos(ts.simbolos)
+        consolaaux = ""
+        while resolver_expresion(instr.exp, ts_local).val :          
+            consolaaux += procesar_instrucciones(instr.instrucciones, ts_local)[13:]
+        
+        return consolaaux
+    else:
+        return "Error -> While necesita un bool"
 
 def procesar_ifelse(instr, ts):
     val = resolver_expresion(instr.exp, ts)

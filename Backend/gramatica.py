@@ -14,10 +14,15 @@ reservadas = {
     'let'    : 'LET',
     'mut'    : 'MUT',
     'if'     : 'IF',
-    'else'   : 'ELSE'
+    'else'   : 'ELSE',
+    'while'  : 'WHILE',
+    'for'    : 'FOR',
+    'in'     : 'IN',
+    'fn'     : 'FN'
 }
 
 tokens  = [
+#    'FLECHA',
     'PTCOMA',
     'DOSPUNTOS',
     'COMA',
@@ -48,6 +53,7 @@ tokens  = [
 ] + list(reservadas.values())
 
 # Tokens
+#t_FLECHA    = r'->'
 t_PTCOMA    = r';'
 t_DOSPUNTOS = r':'
 t_COMA      = r','
@@ -152,8 +158,65 @@ def p_instruccion(t) :
     '''instruccion      :   imprimir_instr
                         |   definicion_instr 
                         |   asignacion_instr
-                        |   if_instr'''
+                        |   if_instr
+                        |   while_instr
+                        |   funcion_instr
+                        |   llamado_instr'''
     t[0] = t[1]
+
+def p_llamado_instr(t):
+    'llamado_instr      :   ID PARIZQ PARDER PTCOMA'
+    t[0] = Llamado(t[1],[])
+
+def p_llamado_instr_CP(t):
+    'llamado_instr      :   ID PARIZQ llparams PARDER PTCOMA'
+    t[0] = Llamado(t[1],t[3])
+
+def p_lllamadoparams(t):
+    'llparams           :   llparams COMA expresion'
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_llamadoparams(t):
+    'llparams           :   expresion'
+    t[0] = [t[1]]
+
+def p_funcion_intr_SP(t):
+    'funcion_instr    :   FN ID PARIZQ PARDER statement'
+    t[0] = Funcion(t[2],[],TIPO_DATO.VOID,t[5])
+
+#def p_funcion_ctipo_intr_SP(t):
+#    'funcion_instr    :   FN ID PARIZQ PARDER FLECHA tipos statement'
+#    t[0] = Funcion(t[2],[],t[6],t[7])
+
+def p_funcion_intr(t):
+    'funcion_instr    :   FN ID PARIZQ fparam PARDER statement'
+    t[0] = Funcion(t[2],t[4],TIPO_DATO.VOID,t[6])
+
+#def p_funcion_ctipo_intr(t):
+#    'funcion_instr    :   FN ID PARIZQ fparam PARDER FLECHA tipos statement'
+#    t[0] = Funcion(t[2],t[4],t[7],t[8])
+
+def p_listafparams(t):
+    'fparam         :       fparam COMA fparametro'
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_fparams(t):
+    'fparam         :       fparametro'
+    t[0] = [t[1]]
+
+def p_fparametro(t):
+    'fparametro     :       ID DOSPUNTOS tipos'
+    t[0] = Parametro(t[1],t[3],TIPO_VAR.INMUTABLE)
+
+def p_fparametro_mut(t):
+    'fparametro     :       MUT ID DOSPUNTOS tipos'
+    t[0] = Parametro(t[2],t[4],TIPO_VAR.MUTABLE)
+
+def p_while_instr(t) :
+    'while_instr     : WHILE expresion statement'
+    t[0] =While(t[2], t[3])
 
 def p_if_instr(t) :
     'if_instr           : IF expresion statement'
@@ -171,7 +234,7 @@ def p_statement(t):
     'statement          :   LLAVIZQ instrucciones LLAVDER'
     t[0] = t[2]
 
-def p_statement_vacion(t):
+def p_statement_vacio(t):  
     'statement          :   LLAVIZQ LLAVDER'
     t[0] = []
 
