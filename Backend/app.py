@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS
 import json
+from instrucciones import Llamado
 
 import gramatica as g
 import ts as TS
@@ -19,7 +20,10 @@ def ejecutar():
 
   instrucciones = g.parse(codigo)
   ts_global = TS.TablaDeSimbolos()
-  consola = Ejecutar.procesar_instrucciones(instrucciones, ts_global)
+
+  Ejecutar.guardarFunciones(instrucciones, ts_global)
+
+  consola = Ejecutar.procesar_instrucciones([Llamado("main",[])], ts_global)['consola']
 
   objeto = {
             'Mensaje': consola

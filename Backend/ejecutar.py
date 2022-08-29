@@ -1,6 +1,7 @@
 from ctypes.wintypes import FLOAT
 from random import vonmisesvariate
 from sre_parse import WHITESPACE
+from ts import TIPO_VAR
 from ts import Simbolo
 from ts import TIPO_DATO
 from expresiones import *
@@ -8,37 +9,105 @@ from instrucciones import *
 import ts as TS
 import math
 
+def guardarFunciones(instrucciones, ts):
+    if instrucciones != None:
+        for instr in instrucciones:
+            if isinstance(instr,Funcion): guardar_funcion(instr,ts) 
 
 def procesar_instrucciones(instrucciones, ts) :
     ## lista de instrucciones recolectadas
     consola = 'Ejecutando...'
     if instrucciones != None:
         for instr in instrucciones :
-            if isinstance(instr, Imprimir) : consola += procesar_imprimir(instr, ts) 
-            elif isinstance(instr,Definicion): procesar_definicion(instr,ts)
-            elif isinstance(instr,Asignacion): procesar_asignacion(instr,ts)
-            elif isinstance(instr, If): consola += procesar_if(instr,ts)
-            elif isinstance(instr,IfElse): consola += procesar_ifelse(instr,ts)
-            elif isinstance(instr,While): consola += procesar_while(instr,ts)
-            elif isinstance(instr,Funcion): procesar_funcion(instr,ts)
-            elif isinstance(instr,Llamado): consola += procesar_llamado(instr,ts)
-            elif isinstance(instr,Match): consola += procesar_match(instr,ts)
+            if isinstance(instr, Imprimir) : consola += procesar_imprimir(instr, ts)
+            elif isinstance(instr,Definicion): procesar_definicion(instr,ts)        
+            elif isinstance(instr,Asignacion): procesar_asignacion(instr,ts)        
+            elif isinstance(instr, If):                                                             
+                res = procesar_if(instr,ts)
+                consola += res['consola']
+                if res['break'].br or res['continue'].br or res['return'].br:
+                    return {'consola': consola,'break': res['break'], 'continue':res['continue'], 'return':res['return']}
+            elif isinstance(instr,IfElse):                                                          # Ya
+                res = procesar_ifelse(instr,ts)
+                consola += res['consola']
+                if res['break'].br or res['continue'].br or res['return'].br:
+                    return {'consola': consola,'break': res['break'], 'continue':res['continue'], 'return':res['return']}
+            elif isinstance(instr,While): 
+                res = procesar_while(instr,ts) 
+                consola += res['consola']
+                if res['return'].br:
+                    return {'consola': consola,'break': res['break'], 'continue':res['continue'], 'return':res['return']}                      
+            elif isinstance(instr,Funcion): guardar_funcion(instr,ts)                               
+            elif isinstance(instr,Llamado):
+                res = procesar_llamado(instr,ts)
+                consola += res['consola']                 
+            elif isinstance(instr,Match):                                                           
+                res = procesar_match(instr,ts)
+                consola += res['consola']
+                if res['break'].br or res['continue'].br or res['return'].br:
+                    return {'consola': consola,'break': res['break'], 'continue':res['continue'], 'return':res['return']}
+            elif isinstance(instr,ForIn): 
+                res = procesar_for(instr,ts)
+                consola += res['consola']
+                if res['return'].br:
+                    return {'consola': consola,'break': res['break'], 'continue':res['continue'], 'return':res['return']}  
+            elif isinstance(instr,Loop): 
+                res = procesar_loop(instr,ts)
+                consola += res['consola']
+                if res['return'].br:
+                    return {'consola': consola,'break': res['break'], 'continue':res['continue'], 'return':res['return']}  
+            elif isinstance(instr,Break): return {'consola': consola, 'break': instr, 'continue' : Continue(False), 'return': Return(False)}
+            elif isinstance(instr,Continue): return {'consola': consola,'break': Break(False), 'continue' : Continue(True), 'return': Return(False)}
+            elif isinstance(instr, Return):
+                exp = resolver_expresion(instr.data,ts) 
+                return {'consola': consola,'break': Break(False), 'continue' : Continue(False), 'return': Return(True,exp)}
 
-    return consola
+    return {'consola': consola, 'break':Break(False), 'continue' : Continue(False), 'return': Return(False)}
+
+def procesar_for(instr,ts):
+    ts_local = TS.TablaDeSimbolos(ts.simbolos, ts.funciones)
+    rango = resolver_expresion(instr.rango,ts)
+    consolaaux = ""
+    if isinstance(rango, ExpresionVec):
+        for exp in rango.val:
+            simbolo = TS.Simbolo(instr.id,TIPO_VAR.INMUTABLE,TIPO_DATO.VOID,resolver_expresion(exp,ts_local))
+            ts_local.agregarSimbolo(simbolo)
+
+            res = procesar_instrucciones(instr.instrucciones, ts_local)      
+            consolaaux += res['consola'][13:]
+
+            if res['break'].br or res['return'].br:
+                return {'consola': consolaaux,'break': Break(False), 'continue' : Continue(False), 'return': res['return']}
+
+        return {'consola': consolaaux,'break': Break(False), 'continue' : Continue(False), 'return': Return(False)}
+    else:
+        return "Error -> Rango no permintido en for"
+
+def procesar_loop(instr,ts):
+    ts_local = TS.TablaDeSimbolos(ts.simbolos, ts.funciones)
+    consolaaux = ""
+    while True:
+        res = procesar_instrucciones(instr.instrucciones, ts_local)      
+        consolaaux += res['consola'][13:]
+
+        if res['break'].br or res['return'].br:
+            return {'consola': consolaaux,'break': Break(False), 'continue' : Continue(False), 'return': res['return']}
 
 def procesar_match(instr,ts):
     val = resolver_expresion(instr.exp,ts)
     for opcion in instr.opciones:
         print(opcion.coincidencias)
         if opcion.coincidencias == TIPO_DATO.VOID:
-            return procesar_instrucciones(opcion.instrucciones,ts)[13:]
+            res = procesar_instrucciones(opcion.instrucciones,ts)
+            return {'consola': res['consola'][13:], 'break':res['break'], 'continue':res['continue']}
         else:
             for coincidencia in opcion.coincidencias:
                 cc = resolver_expresion(coincidencia,ts)
                 if val.tipo == cc.tipo and val.val == cc.val:
-                    return procesar_instrucciones(opcion.instrucciones,ts)[13:]
+                    res = procesar_instrucciones(opcion.instrucciones,ts)
+                    return {'consola': res['consola'][13:], 'break':res['break'], 'continue':res['continue']}
     
-    return ""
+    return {'consola': '', 'break':Break(False), 'continue' : Continue(False)}
 
 def procesar_llamado(instr,ts):
     funcion = ts.obtenerFuncion(instr.id)
@@ -51,23 +120,28 @@ def procesar_llamado(instr,ts):
             nsimbolo = Simbolo(funcion.parametros[num].id,funcion.parametros[num].tipo_var, funcion.parametros[num].tipo_dato,val)
             ts_local.agregarSimbolo(nsimbolo)
 
-        return procesar_instrucciones(funcion.instrucciones,ts_local)[13:]
+        res = procesar_instrucciones(funcion.instrucciones,ts_local)
+        return {'consola': res['consola'][13:], 'break':res['break'], 'continue':res['continue'] , 'return': res['return']}
     else:
         print("Error en cantidad de Parametros")
         return "Error en cantidad de Parametros"
 
-def procesar_funcion(instr,ts):
+def guardar_funcion(instr,ts):
     ts.agregarFuncion(instr)
 
 def procesar_while(instr, ts):
     val = resolver_expresion(instr.exp, ts)
     if val.tipo == TIPO_DATO.BOOLEAN:
-        ts_local = TS.TablaDeSimbolos(ts.simbolos)
+        ts_local = TS.TablaDeSimbolos(ts.simbolos, ts.funciones)
         consolaaux = ""
-        while resolver_expresion(instr.exp, ts_local).val :          
-            consolaaux += procesar_instrucciones(instr.instrucciones, ts_local)[13:]
+        while resolver_expresion(instr.exp, ts_local).val :  
+            res = procesar_instrucciones(instr.instrucciones, ts_local)      
+            consolaaux += res['consola'][13:]
+
+            if res['break'].br or res['return'].br:
+                return {'consola': consolaaux,'break': Break(False), 'continue' : Continue(False), 'return': res['return']}
         
-        return consolaaux
+        return {'consola': consolaaux,'break': Break(False), 'continue' : Continue(False), 'return': Return(False)}
     else:
         return "Error -> While necesita un bool"
 
@@ -75,15 +149,18 @@ def procesar_ifelse(instr, ts):
     val = resolver_expresion(instr.exp, ts)
     if val.tipo == TIPO_DATO.BOOLEAN:
         if val.val:
-            ts_local = TS.TablaDeSimbolos(ts.simbolos)
-            return procesar_instrucciones(instr.instrIfVerdadero, ts_local)[13:]
+            ts_local = TS.TablaDeSimbolos(ts.simbolos, ts.funciones)
+            res = procesar_instrucciones(instr.instrIfVerdadero, ts_local)
+            return {'consola': res['consola'][13:], 'break':res['break'], 'continue':res['continue'], 'return': res['return']}
         else:
             if isinstance(instr.instrIfFalso, If) or isinstance(instr.instrIfFalso, IfElse):
                 ts_local = TS.TablaDeSimbolos(ts.simbolos)
-                return procesar_instrucciones([instr.instrIfFalso], ts_local)[13:]
+                res = procesar_instrucciones([instr.instrIfFalso], ts_local)
+                return {'consola': res['consola'][13:], 'break':res['break'], 'continue':res['continue'], 'return': res['return']}
             else:
                 ts_local = TS.TablaDeSimbolos(ts.simbolos)
-                return procesar_instrucciones(instr.instrIfFalso, ts_local)[13:]
+                res = procesar_instrucciones(instr.instrIfFalso, ts_local)
+                return {'consola': res['consola'][13:], 'break':res['break'], 'continue':res['continue'], 'return': res['return']}
     else:
         return "Error -> Debe de ser expresion booleana"
 
@@ -91,10 +168,11 @@ def procesar_if(instr, ts):
     val = resolver_expresion(instr.exp, ts)
     if val.tipo == TIPO_DATO.BOOLEAN:
         if val.val:
-            ts_local = TS.TablaDeSimbolos(ts.simbolos)
-            return procesar_instrucciones(instr.instrucciones, ts_local)[13:]
+            ts_local = TS.TablaDeSimbolos(ts.simbolos, ts.funciones)
+            res = procesar_instrucciones(instr.instrucciones, ts_local)
+            return {'consola': res['consola'][13:], 'break':res['break'], 'continue':res['continue'] , 'return': res['return']}
         else:
-            return ""
+            return {'consola': '', 'break':Break(False), 'continue': Continue(False), 'return': Break(False)}
     else:
         return "Error -> Debe de ser expresion booleana"
 
@@ -227,6 +305,12 @@ def resolver_expresion(exp, ts):
         
         print("No hay coincidencias")
         return ExpresionDobleComilla("No hay coincidencias", TIPO_DATO.STRING)
+    elif isinstance(exp, ExpresionLoop):
+        ts_local = TS.TablaDeSimbolos(ts.simbolos, ts.funciones)
+        while True:
+            res = procesar_instrucciones(exp.intrucciones, ts_local)
+            if res['break'].br:
+                return resolver_expresion(res['break'].data,ts_local)
     elif isinstance(exp,ToString):
         val = resolver_expresion(exp.dato,ts)
         return ExpresionDobleComilla(to_text(val),TIPO_DATO.STRING)
@@ -244,6 +328,20 @@ def resolver_expresion(exp, ts):
             return ExpresionDobleComilla("No se puede realizar la funcion sqrt.", TIPO_DATO.STRING)
     elif isinstance(exp, Casteo):         
         return casteo(exp,ts)
+    elif isinstance(exp,ExpresionRango):
+        inicio = resolver_expresion(exp.inicio,ts)
+        fin = resolver_expresion(exp.fin,ts)
+        if inicio.tipo == TIPO_DATO.INT64 and fin.tipo == TIPO_DATO.INT64:
+            vec = []
+            for i in range(inicio.val,fin.val):
+                vec.append(ExpresionNumero(i,TIPO_DATO.INT64))
+            
+            return ExpresionVec(vec,TIPO_DATO.VECINT64)
+        else:
+            print("Error -> Tipo incorrecto en rango")
+    elif isinstance(exp, Llamado):
+        res = procesar_llamado(exp,ts)
+        return res['return'].data
     elif isinstance(exp, ExpresionNumero) or isinstance(exp, ExpresionLogicaTF) or isinstance(exp, ExpresionDobleComilla) or isinstance(exp,ExpresionCaracter):
         return exp
     elif isinstance(exp, ExpresionIdentificador) :

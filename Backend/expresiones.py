@@ -74,6 +74,12 @@ class ExpresionIdVectorial(ExpresionNumerica):
         self.id = id
         self.ubicacion = ubicacion
 
+class ExpresionRango(ExpresionNumerica):
+    def __init__(self, inicio, fin):
+        self.inicio = inicio
+        self.fin = fin
+
+
 class ExpresionCadena :
     '''
         Esta clase representa una Expresión de tipo cadena.
@@ -148,6 +154,9 @@ class ExpresionMatch(ExpresionSentencia):
         self.exp = exp
         self.opciones = opciones
 
+class ExpresionLoop(ExpresionSentencia):
+    def __init__(self, instrucciones):
+        self.intrucciones = instrucciones
 
 class ExpresionVector:
     'Para vectores' 

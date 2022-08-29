@@ -28,7 +28,11 @@ reservadas = {
     'as'        : 'AS',
     'vec'       : 'VEC',
     'Vec'       : 'VVEC',
-    'new'       : 'NEW'
+    'new'       : 'NEW',
+    'loop'      : 'LOOP',
+    'break'     : 'BREAK',
+    'continue'  : 'CONTINUE',
+    'return'    : 'RETURN'
 }
 
 tokens  = [
@@ -185,10 +189,39 @@ def p_instruccion(t) :
                         |   asignacion_instr PTCOMA
                         |   if_instr
                         |   while_instr
+                        |   loop_instr
                         |   funcion_instr
                         |   llamado_instr PTCOMA
-                        |   match_instr'''
+                        |   match_instr
+                        |   break_instr PTCOMA
+                        |   continue_instr PTCOMA
+                        |   return_instr PTCOMA
+                        |   for_instr'''
     t[0] = t[1]
+
+def p_return_instr(t):
+    'return_instr       :   RETURN expresion'
+    t[0] = Return(True, t[2])
+
+def p_for_instr(t):
+    'for_instr          :   FOR ID IN expresion statement'
+    t[0] = ForIn(t[2],t[4],t[5])
+
+def p_continue(t):
+    'continue_instr     :   CONTINUE'
+    t[0] = Continue(True)
+
+def p_break(t):
+    'break_instr        :   BREAK'
+    t[0] = Break(True)
+
+def p_break_ret(t):
+    'break_instr        :   BREAK expresion'
+    t[0] = Break(True,t[2])
+
+def p_loop_instr(t):
+    'loop_instr         :   LOOP statement'
+    t[0] = Loop(t[2])
 
 def p_match_instr(t):
     'match_instr        : MATCH expresion LLAVIZQ lismatch LLAVDER'
@@ -440,6 +473,10 @@ def p_expresion_logicaF(t) :
     'expresion    : FALSE'
     t[0] = ExpresionLogicaTF(False, TIPO_DATO.BOOLEAN)
 
+def p_expresion_rango(t):
+    'expresion      :   expresion PUNTO PUNTO expresion'
+    t[0] = ExpresionRango(t[1],t[4])
+
 def p_expresion_id(t):
     'expresion     : ID'
     t[0] = ExpresionIdentificador(t[1])
@@ -474,8 +511,14 @@ def p_expresion_logica_unaria(t):
 def p_expresion_init(t):
     '''expresion    :   expresion_if
                     |   expresion_match
-                    |   expresion_vectorial'''
+                    |   expresion_vectorial
+                    |   expresion_loop
+                    |   llamado_instr'''
     t[0] = t[1]
+
+def p_expresion_loop(t):
+    'expresion_loop     :   LOOP statement'
+    t[0] = ExpresionLoop(t[2])
 
 def p_expresion_match(t):
     'expresion_match    :   MATCH expresion LLAVIZQ lmatchexp LLAVDER'

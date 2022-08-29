@@ -92,3 +92,27 @@ class Casteo(Instruccion):
     def __init__(self, dato, casteo):
         self.dato = dato
         self.casteo = casteo
+
+class Loop(Instruccion):
+    def __init__(self, instrucciones = []):
+        self.instrucciones = instrucciones
+
+class Break(Instruccion):
+    def __init__(self, br ,data = None):
+        self.br = br
+        self.data = data
+
+class Continue(Instruccion):
+    def __init__(self, br):
+        self.br = br
+
+class Return(Instruccion):
+    def __init__(self, br, data = None):
+        self.br = br
+        self.data = data
+
+class ForIn(Instruccion):
+    def __init__(self, id, rango, instrucciones):
+        self.id = id
+        self.rango = rango
+        self.instrucciones = instrucciones
