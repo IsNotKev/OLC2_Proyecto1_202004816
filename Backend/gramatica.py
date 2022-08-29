@@ -22,7 +22,13 @@ reservadas = {
     'match'  : 'MATCH',
     '_'      : 'DEFAULT',
     'to_string' : 'TOSTRING',
-    'to_owned'  : 'TOOWNED'
+    'to_owned'  : 'TOOWNED',
+    'abs'       : 'ABS',
+    'sqrt'      : 'SQRT',
+    'as'        : 'AS',
+    'vec'       : 'VEC',
+    'Vec'       : 'VVEC',
+    'new'       : 'NEW'
 }
 
 tokens  = [
@@ -32,6 +38,8 @@ tokens  = [
     'PTCOMA',
     'DOSPUNTOS',
     'COMA',
+    'CORCHIZQ',
+    'CORCHDER',
     'LLAVIZQ',
     'LLAVDER',
     'PARIZQ',
@@ -67,6 +75,8 @@ t_FLECHAMATCH = r'\=\>'
 t_PTCOMA    = r';'
 t_DOSPUNTOS = r':'
 t_COMA      = r','
+t_CORCHIZQ  = r'\['
+t_CORCHDER  = r'\]'
 t_LLAVIZQ   = r'{'
 t_LLAVDER   = r'}'
 t_PARIZQ    = r'\('
@@ -351,6 +361,16 @@ def p_tiposIStr(t):
     '''tipos            :   I ISTRING'''
     t[0] = TIPO_DATO.ISTRING
 
+def p_tipoVecInt(t):
+    'tipos              :   VVEC MENQUE tipos MAYQUE'
+    
+    if t[3] == TIPO_DATO.INT64: t[0] = TIPO_DATO.VECINT64
+    elif t[3] == TIPO_DATO.FLOAT64: t[0] = TIPO_DATO.VECFLOAT64
+    elif t[3] == TIPO_DATO.BOOLEAN: t[0] = TIPO_DATO.VECBOOLEAN
+    elif t[3] == TIPO_DATO.CHAR: t[0] = TIPO_DATO.VECCHAR
+    elif t[3] == TIPO_DATO.STRING: t[0] = TIPO_DATO.VECSTRING
+    elif t[3] == TIPO_DATO.ISTRING: t[0] = TIPO_DATO.VECISTRING
+
 def p_instruccion_imprimir(t) :
     '''imprimir_instr     : PRINTLN ADMIR PARIZQ CADENA PARDER'''
     t[0] =Imprimir(ExpresionDobleComilla(t[4], TIPO_DATO.ISTRING),parametros=[])
@@ -424,6 +444,10 @@ def p_expresion_id(t):
     'expresion     : ID'
     t[0] = ExpresionIdentificador(t[1])
 
+def p_expresion_id_vectorial(t):
+    'expresion      :   ID CORCHIZQ expresion CORCHDER'
+    t[0] = ExpresionIdVectorial(t[1],t[3])
+
 def p_expresion_relacional(t):
     '''expresion     :      expresion MAYQUE expresion
                         |   expresion MENQUE expresion
@@ -449,7 +473,8 @@ def p_expresion_logica_unaria(t):
 
 def p_expresion_init(t):
     '''expresion    :   expresion_if
-                    |   expresion_match'''
+                    |   expresion_match
+                    |   expresion_vectorial'''
     t[0] = t[1]
 
 def p_expresion_match(t):
@@ -486,12 +511,55 @@ def p_statement_expresion(t):
     t[0] = t[2]
 
 def p_to_string(t):
-    'expresion  :   expresion PUNTO TOSTRING PARIZQ PARDER'
+    '''expresion  :   expresion PUNTO TOSTRING PARIZQ PARDER
+                    | expresion PUNTO TOOWNED PARIZQ PARDER'''
     t[0] = ToString(t[1])
 
-def p_to_owned(t):
-    'expresion  :   expresion PUNTO TOOWNED PARIZQ PARDER'
-    t[0] = ToString(t[1])
+def p_abs(t):
+    'expresion  :   expresion PUNTO ABS PARIZQ PARDER'
+    t[0] = Abs(t[1])
+
+def p_sqrt(t):
+    'expresion  :   expresion PUNTO SQRT PARIZQ PARDER'
+    t[0] = Sqrt(t[1])
+
+def p_casteo(t):
+    'expresion  :   expresion AS tipos'
+    t[0] = Casteo(t[1],t[3])
+
+def p_expresion_vector_vacio(t):
+    'expresion_vectorial      :   VVEC DOSPUNTOS DOSPUNTOS NEW PARIZQ PARDER'
+    t[0] = ExpresionVec([],TIPO_DATO.VOID)
+
+def p_expresion_vector(t):
+    '''expresion_vectorial      :   VEC ADMIR CORCHIZQ lista_vectorial CORCHDER
+                                |   VEC ADMIR CORCHIZQ valores_repetidos CORCHDER'''
+    t[0] = ExpresionVec(t[4], TIPO_DATO.VOID)
+
+def p_expresion_valores_repetidos(t):
+    'valores_repetidos          :   expresion PTCOMA expresion'
+    t[0] = ValoresRepetidos(t[1],t[3])
+
+def p_llista_vectorial(t):
+    '''lista_vectorial    :   lista_vectorial COMA expresion'''
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_lista_vectorial(t):
+    '''lista_vectorial    :   expresion'''
+    t[0] = [t[1]]
+
+#def p_llista_vectorial(t):
+#    '''lista_vectorial    :   lista_vectorial COMA expresion
+#                            | lista_vectorial COMA expresion_vectorial'''
+#    t[1].append(t[3])
+#    t[0] = t[1]
+#
+#def p_lista_vectorial(t):
+#    '''lista_vectorial    :   expresion
+#                          |   expresion_vectorial'''
+#    t[0] = [t[1]]
+
 
 # Error sintactico
 def p_error(p):

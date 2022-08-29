@@ -52,7 +52,6 @@ class ExpresionNegativo(ExpresionNumerica) :
     def __init__(self, exp) :
         self.exp = exp
 
-
 class ExpresionNumero(ExpresionNumerica) :
     '''
         Esta clase representa una expresión numérica entera o decimal.
@@ -69,6 +68,11 @@ class ExpresionIdentificador(ExpresionNumerica) :
 
     def __init__(self, id) :
         self.id = id
+
+class ExpresionIdVectorial(ExpresionNumerica):
+    def __init__(self, id, ubicacion) :
+        self.id = id
+        self.ubicacion = ubicacion
 
 class ExpresionCadena :
     '''
@@ -127,6 +131,7 @@ class ExpresionLogicaTF(ExpresionLogica):
         self.val = val
         self.tipo = tipo
 
+
 class ExpresionSentencia:
     '''
        Esta clase representa una Expresión de tipo Sentencia.
@@ -142,4 +147,19 @@ class ExpresionMatch(ExpresionSentencia):
     def __init__(self,exp,opciones):
         self.exp = exp
         self.opciones = opciones
-        
+
+
+class ExpresionVector:
+    'Para vectores' 
+
+class ExpresionVec:
+    def __init__(self, val, tipo):
+        self.val = val
+        self.tipo = tipo
+
+class ValoresRepetidos:
+    def __init__(self, dato, cant):
+        self.dato = dato
+        self.cant = cant
+
+          

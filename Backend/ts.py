@@ -1,6 +1,7 @@
 from doctest import ELLIPSIS_MARKER
 from enum import Enum
 
+
 class TIPO_DATO(Enum) :
     INT64 = 1
     FLOAT64 = 2
@@ -9,6 +10,13 @@ class TIPO_DATO(Enum) :
     ISTRING = 5
     CHAR = 6
     VOID = 7
+    VECINT64 = 9
+    VECFLOAT64 = 10
+    VECBOOLEAN = 11
+    VECSTRING = 12
+    VECISTRING = 13
+    VECCHAR = 14
+
 
 class TIPO_VAR(Enum):
     MUTABLE = 1
@@ -17,11 +25,12 @@ class TIPO_VAR(Enum):
 class Simbolo() :
     'Esta clase representa un simbolo dentro de nuestra tabla de simbolos'
 
-    def __init__(self, id, tipo_var, tipo_dato,valor) :
+    def __init__(self, id, tipo_var, tipo_dato,valor, capacity = None) :
         self.id = id
         self.tipo_var = tipo_var
         self.tipo_dato = tipo_dato
         self.valor = valor
+        self.capacity = capacity
 
 class Funcion():
     def __init__(self, id, parametros, instrucciones, tipo_dato):
@@ -64,8 +73,14 @@ class TablaDeSimbolos() :
     def obtenerSimbolo(self, id) :
         if not id in self.simbolos :
             print('Error: variable ', id, ' no definida.')
+        else:
+            return self.simbolos[id]
 
-        return self.simbolos[id]
+    def obtenerSimboloV(self, id, ubicacion):
+        if not id in self.simbolos :
+            print('Error: variable ', id, ' no definida.')
+        else:
+            return (self.simbolos[id]).valor.val[ubicacion]   
 
     def actualizarSimbolo(self, id, nval) :
         if not id in self.simbolos :

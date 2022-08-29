@@ -79,3 +79,16 @@ class OpcionMatch(Instruccion):
 class ToString(Instruccion):
     def __init__(self, dato):
         self.dato = dato
+
+class Abs(Instruccion):
+    def __init__(self, dato):
+        self.dato = dato
+
+class Sqrt(Instruccion):
+    def __init__(self, dato):
+        self.dato = dato
+
+class Casteo(Instruccion):
+    def __init__(self, dato, casteo):
+        self.dato = dato
+        self.casteo = casteo

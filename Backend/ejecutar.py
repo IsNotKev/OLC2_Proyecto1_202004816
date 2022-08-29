@@ -1,3 +1,5 @@
+from ctypes.wintypes import FLOAT
+from random import vonmisesvariate
 from sre_parse import WHITESPACE
 from ts import Simbolo
 from ts import TIPO_DATO
@@ -10,7 +12,6 @@ import math
 def procesar_instrucciones(instrucciones, ts) :
     ## lista de instrucciones recolectadas
     consola = 'Ejecutando...'
-    print(instrucciones)
     if instrucciones != None:
         for instr in instrucciones :
             if isinstance(instr, Imprimir) : consola += procesar_imprimir(instr, ts) 
@@ -106,7 +107,7 @@ def procesar_imprimir(instr, ts) :
         error = False
         for param in instr.parametros:
             aux = resolver_expresion(param, ts)
-            aux = to_text(aux)
+            aux = to_text(aux,ts)
 
             escribir = True
             primero = False
@@ -181,6 +182,8 @@ def resolver_expresion(exp, ts):
                 else:
                     return ExpresionNumero(exp1.val / exp2.val,exp1.tipo)
             if exp.operador == OPERACION_ARITMETICA.MODULO : return ExpresionNumero(exp1.val % exp2.val,exp1.tipo)  
+        elif exp1.tipo == TIPO_DATO.STRING and exp2.tipo == TIPO_DATO.ISTRING:
+            return ExpresionDobleComilla(exp1.val + exp2.val,TIPO_DATO.STRING)
         else:
             return ExpresionDobleComilla("Error -> No se puede operar", TIPO_DATO.STRING)
         
@@ -198,7 +201,7 @@ def resolver_expresion(exp, ts):
                   
     elif isinstance(exp, ExpresionNegativo) :
         exp = resolver_expresion(exp.exp, ts)
-        if(exp.tipo == TIPO_DATO.INT64 or exp1.tipo == TIPO_DATO.FLOAT64):
+        if(exp.tipo == TIPO_DATO.INT64 or exp.tipo == TIPO_DATO.FLOAT64):
             return ExpresionNumero(exp.val*-1,exp.tipo)
         else:
             return ExpresionDobleComilla("Error -> No se puede operar", TIPO_DATO.STRING)
@@ -227,25 +230,101 @@ def resolver_expresion(exp, ts):
     elif isinstance(exp,ToString):
         val = resolver_expresion(exp.dato,ts)
         return ExpresionDobleComilla(to_text(val),TIPO_DATO.STRING)
-
+    elif isinstance(exp,Abs):
+        val = resolver_expresion(exp.dato,ts)
+        if val.tipo == TIPO_DATO.INT64 or val.tipo == TIPO_DATO.FLOAT64:
+            return ExpresionNumero(abs(val.val), val.tipo)
+        else:
+            return ExpresionDobleComilla("No se puede realizar la funcion abs.", TIPO_DATO.STRING)
+    elif isinstance(exp,Sqrt):
+        val = resolver_expresion(exp.dato,ts)
+        if val.tipo == TIPO_DATO.INT64 or val.tipo == TIPO_DATO.FLOAT64:
+            return ExpresionNumero(math.sqrt(val.val), TIPO_DATO.FLOAT64)
+        else:
+            return ExpresionDobleComilla("No se puede realizar la funcion sqrt.", TIPO_DATO.STRING)
+    elif isinstance(exp, Casteo):         
+        return casteo(exp,ts)
     elif isinstance(exp, ExpresionNumero) or isinstance(exp, ExpresionLogicaTF) or isinstance(exp, ExpresionDobleComilla) or isinstance(exp,ExpresionCaracter):
         return exp
     elif isinstance(exp, ExpresionIdentificador) :
         return ts.obtenerSimbolo(exp.id).valor
+    elif isinstance(exp,ExpresionVec):
+        if type(exp.val) == type([]):
+            return exp
+        elif isinstance(exp.val,ValoresRepetidos):
+            cant = resolver_expresion(exp.val.cant,ts)
+            if cant.tipo == TIPO_DATO.INT64:
+                val = []
+                dato = resolver_expresion(exp.val.dato,ts)
+                for i in range(0,cant.val):
+                    val.append(dato)
+                return ExpresionVec(val, TIPO_DATO.VOID)
+    elif isinstance(exp,ExpresionIdVectorial):
+        ub = resolver_expresion(exp.ubicacion,ts)
+        if ub.tipo == TIPO_DATO.INT64 and ub.val >= 0:
+            return ts.obtenerSimboloV(exp.id, ub.val)
+        else:
+            print('Error: Necesita un entero positivo')
     else :
         print('Error: Expresión no válida')
 
-def procesar_definicion(instr, ts):
-    val = resolver_expresion(instr.dato, ts)
+def casteo(exp,ts):
+    val = resolver_expresion(exp.dato,ts) 
+
+    if val.tipo == exp.casteo:
+        return val
+    elif val.tipo == TIPO_DATO.INT64 and exp.casteo == TIPO_DATO.FLOAT64:
+        return ExpresionNumero(val.val, TIPO_DATO.FLOAT64)
+    elif val.tipo == TIPO_DATO.FLOAT64 and exp.casteo == TIPO_DATO.INT64:
+        return ExpresionNumero(math.trunc(val.val), TIPO_DATO.INT64)
+    elif val.tipo == TIPO_DATO.CHAR and exp.casteo == TIPO_DATO.INT64:
+        return ExpresionNumero( ord(val.val), TIPO_DATO.INT64)
+    
+    return ExpresionDobleComilla("Error -> No se puede realizar casteo", TIPO_DATO.STRING)
+
+def procesar_definicion(instr, ts):   
+    val = resolver_expresion(instr.dato, ts)  
+
+    if val.tipo == TIPO_DATO.VOID and type(val.val) == type([]):
+
+            if comprobar_vector(val.val,ts,TIPO_DATO.INT64):
+                val.tipo = TIPO_DATO.VECINT64
+            elif comprobar_vector(val.val,ts,TIPO_DATO.FLOAT64):
+                val.tipo = TIPO_DATO.VECFLOAT64
+            elif comprobar_vector(val.val,ts,TIPO_DATO.BOOLEAN):   
+                val.tipo = TIPO_DATO.VECBOOLEAN
+            elif comprobar_vector(val.val,ts,TIPO_DATO.CHAR):
+                val.tipo = TIPO_DATO.VECCHAR
+            elif comprobar_vector(val.val,ts,TIPO_DATO.ISTRING):
+                val.tipo = TIPO_DATO.VECISTRING
+            elif comprobar_vector(val.val,ts,TIPO_DATO.STRING):
+                val.tipo = TIPO_DATO.VECSTRING
+            else:
+                print('Vector Incorrecto')
+
     simbolo = TS.Simbolo(instr.id,instr.tipo_var,instr.tipo_dato,val)
     ts.agregarSimbolo(simbolo)
 
-def to_text(valor):
+def comprobar_vector(vector,ts,tipo):
+    for n in vector:
+        if resolver_expresion(n,ts).tipo != tipo:
+            return False
+    
+    return True
+
+def to_text(valor,ts):
     if(isinstance(valor, ExpresionLogicaTF)):
         if(valor.val):
            return "true"
         else:
            return "false"
+    elif isinstance(valor,ExpresionVec):
+        tt = '['
+        for v in valor.val:
+            tt += to_text(v,ts) + ', '
+        tt = tt[:-2]
+        tt += ']'
+        return tt
     else:
         return str(valor.val)
 
