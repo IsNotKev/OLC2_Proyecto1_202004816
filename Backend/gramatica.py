@@ -4,6 +4,7 @@ reservadas = {
     'powf'   : 'POWF',
     'pow'    : 'POW',
     'i64'    : 'INT',
+    'usize'  : 'USIZE',
     'f64'    : 'FLOAT',
     'bool'   : 'BOOLEAN',
     'char'   : 'CHAR',
@@ -32,7 +33,13 @@ reservadas = {
     'loop'      : 'LOOP',
     'break'     : 'BREAK',
     'continue'  : 'CONTINUE',
-    'return'    : 'RETURN'
+    'return'    : 'RETURN',
+    'len'       : 'LEN',
+    'push'      : 'PUSH',
+    'remove'    : 'REMOVE',
+    'contains'  : 'CONTAINS',
+    'insert'    : 'INSERT',
+    'capacity'  : 'CAPACITY'
 }
 
 tokens  = [
@@ -140,6 +147,10 @@ def t_COMENTARIO_SIMPLE(t):
     r'//.*\n'
     t.lexer.lineno += 1
 
+def t_COMENTARIOML(t):
+    r'/\*[\s\S]*?\*/'
+    t.lexer.lineno += 1
+
 # Caracteres ignorados
 t_ignore = " \t\r"
 
@@ -159,10 +170,11 @@ lex.lex()
 
 #Precedencia
 precedence = (
-    #('left','CONCAT'),
+    ('left', 'OR', 'AND'),
+    ('nonassoc','MAYQUE', 'MENQUE','MAYORIGUAL','MENORIGUAL','IGUALQUE','NIGUALQUE'),
     ('left','MAS','MENOS'),
     ('left','POR','DIVIDIDO','MODULO'),
-    ('right','UMENOS', 'NOT')
+    ('right','UMENOS', 'NOT'),   
     )
 
 from expresiones import *
@@ -196,8 +208,18 @@ def p_instruccion(t) :
                         |   break_instr PTCOMA
                         |   continue_instr PTCOMA
                         |   return_instr PTCOMA
-                        |   for_instr'''
+                        |   for_instr
+                        |   push_instr PTCOMA
+                        |   remove_instr PTCOMA'''
     t[0] = t[1]
+
+def p_remove_instr(t):
+    'remove_instr       :   ID PUNTO REMOVE PARIZQ expresion PARDER'
+    t[0] = Remove(t[1], t[5])
+
+def p_push_instr(t):
+    'push_instr       :   ID PUNTO PUSH PARIZQ expresion PARDER'
+    t[0] = Push(t[1], t[5])
 
 def p_return_instr(t):
     'return_instr       :   RETURN expresion'
@@ -394,6 +416,10 @@ def p_tiposIStr(t):
     '''tipos            :   I ISTRING'''
     t[0] = TIPO_DATO.ISTRING
 
+def p_tiposusize(t):
+    '''tipos            :   USIZE'''
+    t[0] = TIPO_DATO.USIZE
+
 def p_tipoVecInt(t):
     'tipos              :   VVEC MENQUE tipos MAYQUE'
     
@@ -403,6 +429,7 @@ def p_tipoVecInt(t):
     elif t[3] == TIPO_DATO.CHAR: t[0] = TIPO_DATO.VECCHAR
     elif t[3] == TIPO_DATO.STRING: t[0] = TIPO_DATO.VECSTRING
     elif t[3] == TIPO_DATO.ISTRING: t[0] = TIPO_DATO.VECISTRING
+    elif t[3] == TIPO_DATO.USIZE: t[0] = TIPO_DATO.VECINT64
 
 def p_instruccion_imprimir(t) :
     '''imprimir_instr     : PRINTLN ADMIR PARIZQ CADENA PARDER'''
@@ -482,8 +509,18 @@ def p_expresion_id(t):
     t[0] = ExpresionIdentificador(t[1])
 
 def p_expresion_id_vectorial(t):
-    'expresion      :   ID CORCHIZQ expresion CORCHDER'
-    t[0] = ExpresionIdVectorial(t[1],t[3])
+    'expresion      :   ID lista_corch'
+    t[0] = ExpresionIdVectorial(t[1],t[2])
+
+def p_llidarray(t):
+    'lista_corch    :   lista_corch CORCHIZQ expresion CORCHDER'
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_lidarray(t):
+    'lista_corch    :   CORCHIZQ expresion CORCHDER'
+    t[0] = [t[2]]
+
 
 def p_expresion_relacional(t):
     '''expresion     :      expresion MAYQUE expresion
@@ -512,6 +549,7 @@ def p_expresion_init(t):
     '''expresion    :   expresion_if
                     |   expresion_match
                     |   expresion_vectorial
+                    |   expresion_array
                     |   expresion_loop
                     |   llamado_instr'''
     t[0] = t[1]
@@ -574,10 +612,19 @@ def p_expresion_vector_vacio(t):
     'expresion_vectorial      :   VVEC DOSPUNTOS DOSPUNTOS NEW PARIZQ PARDER'
     t[0] = ExpresionVec([],TIPO_DATO.VOID)
 
+def p_expresion_len(t):
+    'expresion                  :   expresion PUNTO LEN PARIZQ PARDER'
+    t[0] = Len(t[1])
+
 def p_expresion_vector(t):
     '''expresion_vectorial      :   VEC ADMIR CORCHIZQ lista_vectorial CORCHDER
                                 |   VEC ADMIR CORCHIZQ valores_repetidos CORCHDER'''
     t[0] = ExpresionVec(t[4], TIPO_DATO.VOID)
+
+def p_expresion_array(t):
+    '''expresion_array      :   CORCHIZQ lista_vectorial CORCHDER
+                            |   CORCHIZQ valores_repetidos CORCHDER'''
+    t[0] = ExpresionArray(t[2], TIPO_DATO.VOID)
 
 def p_expresion_valores_repetidos(t):
     'valores_repetidos          :   expresion PTCOMA expresion'
@@ -591,18 +638,6 @@ def p_llista_vectorial(t):
 def p_lista_vectorial(t):
     '''lista_vectorial    :   expresion'''
     t[0] = [t[1]]
-
-#def p_llista_vectorial(t):
-#    '''lista_vectorial    :   lista_vectorial COMA expresion
-#                            | lista_vectorial COMA expresion_vectorial'''
-#    t[1].append(t[3])
-#    t[0] = t[1]
-#
-#def p_lista_vectorial(t):
-#    '''lista_vectorial    :   expresion
-#                          |   expresion_vectorial'''
-#    t[0] = [t[1]]
-
 
 # Error sintactico
 def p_error(p):

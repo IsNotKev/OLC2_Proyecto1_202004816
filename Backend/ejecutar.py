@@ -21,13 +21,17 @@ def procesar_instrucciones(instrucciones, ts) :
         for instr in instrucciones :
             if isinstance(instr, Imprimir) : consola += procesar_imprimir(instr, ts)
             elif isinstance(instr,Definicion): procesar_definicion(instr,ts)        
-            elif isinstance(instr,Asignacion): procesar_asignacion(instr,ts)        
+            elif isinstance(instr,Asignacion): procesar_asignacion(instr,ts) 
+            elif isinstance(instr,Funcion): guardar_funcion(instr,ts)
+            #elif isinstance(instr,Push): 
+            #    dd = resolver_expresion(instr.dato,ts)
+            #    ts.push(instr.id,dd)     
             elif isinstance(instr, If):                                                             
                 res = procesar_if(instr,ts)
                 consola += res['consola']
                 if res['break'].br or res['continue'].br or res['return'].br:
                     return {'consola': consola,'break': res['break'], 'continue':res['continue'], 'return':res['return']}
-            elif isinstance(instr,IfElse):                                                          # Ya
+            elif isinstance(instr,IfElse):                                                   # Ya
                 res = procesar_ifelse(instr,ts)
                 consola += res['consola']
                 if res['break'].br or res['continue'].br or res['return'].br:
@@ -36,8 +40,7 @@ def procesar_instrucciones(instrucciones, ts) :
                 res = procesar_while(instr,ts) 
                 consola += res['consola']
                 if res['return'].br:
-                    return {'consola': consola,'break': res['break'], 'continue':res['continue'], 'return':res['return']}                      
-            elif isinstance(instr,Funcion): guardar_funcion(instr,ts)                               
+                    return {'consola': consola,'break': res['break'], 'continue':res['continue'], 'return':res['return']}                                                     
             elif isinstance(instr,Llamado):
                 res = procesar_llamado(instr,ts)
                 consola += res['consola']                 
@@ -112,7 +115,7 @@ def procesar_match(instr,ts):
 def procesar_llamado(instr,ts):
     funcion = ts.obtenerFuncion(instr.id)
 
-    ts_local = TS.TablaDeSimbolos()
+    ts_local = TS.TablaDeSimbolos(simbolos={},funciones=ts.funciones)
 
     if len(instr.parametros) == len(funcion.parametros):
         for num in range(0,len(funcion.parametros),1):
@@ -313,7 +316,7 @@ def resolver_expresion(exp, ts):
                 return resolver_expresion(res['break'].data,ts_local)
     elif isinstance(exp,ToString):
         val = resolver_expresion(exp.dato,ts)
-        return ExpresionDobleComilla(to_text(val),TIPO_DATO.STRING)
+        return ExpresionDobleComilla(to_text(val,ts),TIPO_DATO.STRING)
     elif isinstance(exp,Abs):
         val = resolver_expresion(exp.dato,ts)
         if val.tipo == TIPO_DATO.INT64 or val.tipo == TIPO_DATO.FLOAT64:
@@ -344,11 +347,29 @@ def resolver_expresion(exp, ts):
         return res['return'].data
     elif isinstance(exp, ExpresionNumero) or isinstance(exp, ExpresionLogicaTF) or isinstance(exp, ExpresionDobleComilla) or isinstance(exp,ExpresionCaracter):
         return exp
+    elif isinstance(exp,ExpresionArray):
+        dato = []   
+        if type(exp.val) == type([]):
+            for i in exp.val:
+                dato.append(resolver_expresion(i,ts))
+        elif isinstance(exp.val,ValoresRepetidos):
+            cant = resolver_expresion(exp.val.cant,ts)
+            if cant.tipo == TIPO_DATO.INT64:
+                val = []
+                dato = resolver_expresion(exp.val.dato,ts)
+                for i in range(0,cant.val):
+                    val.append(dato)
+                return ExpresionArray(val, TIPO_DATO.VOID)
+        else:
+            dato.append(resolver_expresion(exp.val,ts))
+        return ExpresionArray(dato,TIPO_DATO.VOID)
     elif isinstance(exp, ExpresionIdentificador) :
         return ts.obtenerSimbolo(exp.id).valor
     elif isinstance(exp,ExpresionVec):
+        dato = []   
         if type(exp.val) == type([]):
-            return exp
+            for i in exp.val:
+                dato.append(resolver_expresion(i,ts))
         elif isinstance(exp.val,ValoresRepetidos):
             cant = resolver_expresion(exp.val.cant,ts)
             if cant.tipo == TIPO_DATO.INT64:
@@ -357,14 +378,24 @@ def resolver_expresion(exp, ts):
                 for i in range(0,cant.val):
                     val.append(dato)
                 return ExpresionVec(val, TIPO_DATO.VOID)
-    elif isinstance(exp,ExpresionIdVectorial):
-        ub = resolver_expresion(exp.ubicacion,ts)
-        if ub.tipo == TIPO_DATO.INT64 and ub.val >= 0:
-            return ts.obtenerSimboloV(exp.id, ub.val)
         else:
-            print('Error: Necesita un entero positivo')
+            dato.append(resolver_expresion(exp.val,ts))
+        return ExpresionVec(dato,TIPO_DATO.VOID)
+    elif isinstance(exp,Len):
+        val = resolver_expresion(exp.dato,ts)
+        return ExpresionNumero(len(val.val),TIPO_DATO.INT64)
+    elif isinstance(exp,ExpresionIdVectorial):
+        dd = []
+        for n in exp.ubicacion:
+            num = resolver_expresion(n,ts)
+            if num.tipo == TIPO_DATO.INT64 and num.val >= 0:
+                dd.append(num.val)
+            else:
+                print('Error: Necesita un entero positivo')
+        return ts.obtenerSimboloV(exp.id, dd)
     else :
         print('Error: Expresión no válida')
+        print(exp)
 
 def casteo(exp,ts):
     val = resolver_expresion(exp.dato,ts) 
@@ -383,25 +414,26 @@ def casteo(exp,ts):
 def procesar_definicion(instr, ts):   
     val = resolver_expresion(instr.dato, ts)  
 
-    if val.tipo == TIPO_DATO.VOID and type(val.val) == type([]):
-
-            if comprobar_vector(val.val,ts,TIPO_DATO.INT64):
-                val.tipo = TIPO_DATO.VECINT64
-            elif comprobar_vector(val.val,ts,TIPO_DATO.FLOAT64):
-                val.tipo = TIPO_DATO.VECFLOAT64
-            elif comprobar_vector(val.val,ts,TIPO_DATO.BOOLEAN):   
-                val.tipo = TIPO_DATO.VECBOOLEAN
-            elif comprobar_vector(val.val,ts,TIPO_DATO.CHAR):
-                val.tipo = TIPO_DATO.VECCHAR
-            elif comprobar_vector(val.val,ts,TIPO_DATO.ISTRING):
-                val.tipo = TIPO_DATO.VECISTRING
-            elif comprobar_vector(val.val,ts,TIPO_DATO.STRING):
-                val.tipo = TIPO_DATO.VECSTRING
-            else:
-                print('Vector Incorrecto')
-
+    #if val.tipo == TIPO_DATO.VOID and type(val.val) == type([]):
+#
+    #    if comprobar_vector(val.val,ts,TIPO_DATO.INT64):
+    #        val.tipo = TIPO_DATO.VECINT64
+    #    elif comprobar_vector(val.val,ts,TIPO_DATO.FLOAT64):
+    #        val.tipo = TIPO_DATO.VECFLOAT64
+    #    elif comprobar_vector(val.val,ts,TIPO_DATO.BOOLEAN):   
+    #        val.tipo = TIPO_DATO.VECBOOLEAN
+    #    elif comprobar_vector(val.val,ts,TIPO_DATO.CHAR):
+    #        val.tipo = TIPO_DATO.VECCHAR
+    #    elif comprobar_vector(val.val,ts,TIPO_DATO.ISTRING):
+    #        val.tipo = TIPO_DATO.VECISTRING
+    #    elif comprobar_vector(val.val,ts,TIPO_DATO.STRING):
+    #        val.tipo = TIPO_DATO.VECSTRING
+    #    else:
+    #        print('Vector Incorrecto')
+          
     simbolo = TS.Simbolo(instr.id,instr.tipo_var,instr.tipo_dato,val)
     ts.agregarSimbolo(simbolo)
+
 
 def comprobar_vector(vector,ts,tipo):
     for n in vector:
@@ -419,6 +451,22 @@ def to_text(valor,ts):
     elif isinstance(valor,ExpresionVec):
         tt = '['
         for v in valor.val:
+            tt += to_text(v,ts) + ', '
+        tt = tt[:-2]
+        tt += ']'
+        return tt
+    elif isinstance(valor,ExpresionArray):
+        tt = '['
+        for v in valor.val:
+            #if isinstance(v,ExpresionArray):
+            #    tt += 
+            tt += to_text(v,ts) + ', '
+        tt = tt[:-2]
+        tt += ']'
+        return tt
+    elif type(valor) == type([]):
+        tt = '['
+        for v in valor:
             tt += to_text(v,ts) + ', '
         tt = tt[:-2]
         tt += ']'

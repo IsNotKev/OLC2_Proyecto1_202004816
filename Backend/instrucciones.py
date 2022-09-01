@@ -116,3 +116,18 @@ class ForIn(Instruccion):
         self.id = id
         self.rango = rango
         self.instrucciones = instrucciones
+
+class Push(Instruccion):
+    def __init__(self,id, dato):
+        self.id = id
+        self.dato = dato
+
+class Remove(Instruccion):
+    def __init__(self,id, dato):
+        self.id = id
+        self.dato = dato
+
+class Contains(Instruccion):
+    def __init__(self,id, dato):
+        self.id = id
+        self.dato = dato

@@ -161,7 +161,17 @@ class ExpresionLoop(ExpresionSentencia):
 class ExpresionVector:
     'Para vectores' 
 
+class ExpresionArray:
+    def __init__(self, val, tipo):
+        self.val = val
+        self.tipo = tipo
+
 class ExpresionVec:
+    def __init__(self, val, tipo):
+        self.val = val
+        self.tipo = tipo
+
+class ExpresionArray:
     def __init__(self, val, tipo):
         self.val = val
         self.tipo = tipo
@@ -170,5 +180,9 @@ class ValoresRepetidos:
     def __init__(self, dato, cant):
         self.dato = dato
         self.cant = cant
+
+class Len:
+    def __init__(self, dato):
+        self.dato = dato
 
           
