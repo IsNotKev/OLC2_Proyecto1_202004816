@@ -23,9 +23,29 @@ def procesar_instrucciones(instrucciones, ts) :
             elif isinstance(instr,Definicion): procesar_definicion(instr,ts)        
             elif isinstance(instr,Asignacion): procesar_asignacion(instr,ts) 
             elif isinstance(instr,Funcion): guardar_funcion(instr,ts)
-            #elif isinstance(instr,Push): 
-            #    dd = resolver_expresion(instr.dato,ts)
-            #    ts.push(instr.id,dd)     
+            elif isinstance(instr,Push): 
+                dd = resolver_expresion(instr.dato,ts)
+                ts.push(instr.id,dd)
+            elif isinstance(instr,Remove): 
+                dd = resolver_expresion(instr.dato,ts)
+                if dd.val >= 0:
+                    ts.remove(instr.id,dd.val) 
+            elif isinstance(instr,Insert): 
+                ub = resolver_expresion(instr.ubicacion,ts)
+                dato = resolver_expresion(instr.dato,ts)
+                if ub.val >= 0:
+                    ts.insert(instr.id,ub.val,dato)  
+            elif isinstance(instr,AsignacionVec): 
+                dat = resolver_expresion(instr.exp,ts)
+                dd = []
+                for n in instr.ubicacion:
+                    num = resolver_expresion(n,ts)
+                    if num.tipo == TIPO_DATO.INT64 and num.val >= 0:
+                        dd.append(num.val)
+                    else:
+                        print('Error: Necesita un entero positivo')
+                ts.actualizarVec(instr.id,dd,dat)  
+
             elif isinstance(instr, If):                                                             
                 res = procesar_if(instr,ts)
                 consola += res['consola']
@@ -71,7 +91,7 @@ def procesar_for(instr,ts):
     ts_local = TS.TablaDeSimbolos(ts.simbolos, ts.funciones)
     rango = resolver_expresion(instr.rango,ts)
     consolaaux = ""
-    if isinstance(rango, ExpresionVec):
+    if isinstance(rango, ExpresionVec) or isinstance(rango, ExpresionArray):
         for exp in rango.val:
             simbolo = TS.Simbolo(instr.id,TIPO_VAR.INMUTABLE,TIPO_DATO.VOID,resolver_expresion(exp,ts_local))
             ts_local.agregarSimbolo(simbolo)
@@ -118,12 +138,21 @@ def procesar_llamado(instr,ts):
     ts_local = TS.TablaDeSimbolos(simbolos={},funciones=ts.funciones)
 
     if len(instr.parametros) == len(funcion.parametros):
+        imut = []
         for num in range(0,len(funcion.parametros),1):
-            val = resolver_expresion(instr.parametros[num], ts)
+            if isinstance(instr.parametros[num],ParI):
+                val = resolver_expresion(instr.parametros[num].par, ts)
+                imut.append([instr.parametros[num].par.id,funcion.parametros[num].id])
+            else:
+                val = resolver_expresion(instr.parametros[num], ts)
             nsimbolo = Simbolo(funcion.parametros[num].id,funcion.parametros[num].tipo_var, funcion.parametros[num].tipo_dato,val)
             ts_local.agregarSimbolo(nsimbolo)
 
         res = procesar_instrucciones(funcion.instrucciones,ts_local)
+
+        for n in imut:
+            procesar_asignacion(Asignacion(n[0],resolver_expresion(ExpresionIdentificador(n[1]),ts_local)),ts)
+
         return {'consola': res['consola'][13:], 'break':res['break'], 'continue':res['continue'] , 'return': res['return']}
     else:
         print("Error en cantidad de Parametros")
@@ -184,6 +213,7 @@ def procesar_imprimir(instr, ts) :
         return '\n> ' + resolver_expresion(instr.cad, ts).val
     else:
         cadena = resolver_expresion(instr.cad, ts).val
+        cadena = cadena.replace('\\n','\n')
         cad_aux = ""
         error = False
         for param in instr.parametros:
@@ -339,7 +369,7 @@ def resolver_expresion(exp, ts):
             for i in range(inicio.val,fin.val):
                 vec.append(ExpresionNumero(i,TIPO_DATO.INT64))
             
-            return ExpresionVec(vec,TIPO_DATO.VECINT64)
+            return ExpresionVec(vec,TIPO_DATO.VOID)
         else:
             print("Error -> Tipo incorrecto en rango")
     elif isinstance(exp, Llamado):
@@ -377,10 +407,10 @@ def resolver_expresion(exp, ts):
                 dato = resolver_expresion(exp.val.dato,ts)
                 for i in range(0,cant.val):
                     val.append(dato)
-                return ExpresionVec(val, TIPO_DATO.VOID)
+                return ExpresionVec(val, TIPO_DATO.VOID,resolver_expresion(exp.capacity,ts))
         else:
             dato.append(resolver_expresion(exp.val,ts))
-        return ExpresionVec(dato,TIPO_DATO.VOID)
+        return ExpresionVec(dato,TIPO_DATO.VOID,resolver_expresion(exp.capacity,ts))
     elif isinstance(exp,Len):
         val = resolver_expresion(exp.dato,ts)
         return ExpresionNumero(len(val.val),TIPO_DATO.INT64)
@@ -391,8 +421,18 @@ def resolver_expresion(exp, ts):
             if num.tipo == TIPO_DATO.INT64 and num.val >= 0:
                 dd.append(num.val)
             else:
+                dd.append(0)
                 print('Error: Necesita un entero positivo')
         return ts.obtenerSimboloV(exp.id, dd)
+    elif isinstance(exp,Remove):
+        dd = resolver_expresion(exp.dato,ts)
+        if dd.val >= 0:
+            return ts.remove(exp.id,dd.val) 
+    elif isinstance(exp,Contains):
+        dd = resolver_expresion(exp.dato,ts)
+        return ExpresionLogicaTF(ts.contains(exp.id,dd),TIPO_DATO.BOOLEAN )
+    elif isinstance(exp,Capacity):
+        return ExpresionNumero(ts.capacity(exp.id),TIPO_DATO.INT64 )
     else :
         print('Error: Expresión no válida')
         print(exp)
@@ -430,8 +470,14 @@ def procesar_definicion(instr, ts):
     #        val.tipo = TIPO_DATO.VECSTRING
     #    else:
     #        print('Vector Incorrecto')
-          
-    simbolo = TS.Simbolo(instr.id,instr.tipo_var,instr.tipo_dato,val)
+
+    if type(val.val) == type([]):
+        cc = None
+        if val.capacity != None:
+            cc = resolver_expresion(val.capacity,ts).val
+        simbolo = TS.Simbolo(instr.id,instr.tipo_var,instr.tipo_dato,val,cc)
+    else:
+        simbolo = TS.Simbolo(instr.id,instr.tipo_var,instr.tipo_dato,val)
     ts.agregarSimbolo(simbolo)
 
 
@@ -448,20 +494,14 @@ def to_text(valor,ts):
            return "true"
         else:
            return "false"
-    elif isinstance(valor,ExpresionVec):
+    elif isinstance(valor,ExpresionVec) or isinstance(valor,ExpresionArray):
         tt = '['
+        cc = 0
         for v in valor.val:
             tt += to_text(v,ts) + ', '
-        tt = tt[:-2]
-        tt += ']'
-        return tt
-    elif isinstance(valor,ExpresionArray):
-        tt = '['
-        for v in valor.val:
-            #if isinstance(v,ExpresionArray):
-            #    tt += 
-            tt += to_text(v,ts) + ', '
-        tt = tt[:-2]
+            cc += 1
+        if cc > 0:
+            tt = tt[:-2]
         tt += ']'
         return tt
     elif type(valor) == type([]):

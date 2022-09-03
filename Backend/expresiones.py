@@ -162,19 +162,16 @@ class ExpresionVector:
     'Para vectores' 
 
 class ExpresionArray:
-    def __init__(self, val, tipo):
+    def __init__(self, val, tipo, capacity = None):
         self.val = val
         self.tipo = tipo
+        self.capacity = capacity
 
 class ExpresionVec:
-    def __init__(self, val, tipo):
+    def __init__(self, val, tipo, capacity = None):
         self.val = val
         self.tipo = tipo
-
-class ExpresionArray:
-    def __init__(self, val, tipo):
-        self.val = val
-        self.tipo = tipo
+        self.capacity = capacity
 
 class ValoresRepetidos:
     def __init__(self, dato, cant):
@@ -184,5 +181,18 @@ class ValoresRepetidos:
 class Len:
     def __init__(self, dato):
         self.dato = dato
+
+class Contains:
+    def __init__(self,id, dato):
+        self.id = id
+        self.dato = dato
+
+class Capacity:
+    def __init__(self,id):
+        self.id = id
+
+class ParI:
+    def __init__(self,par):
+        self.par = par
 
           

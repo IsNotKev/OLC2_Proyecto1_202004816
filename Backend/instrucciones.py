@@ -31,6 +31,13 @@ class Asignacion(Instruccion) :
         self.id = id
         self.exp = exp
 
+class AsignacionVec(Instruccion) :
+
+    def __init__(self, id, ubicacion,exp) :
+        self.id = id
+        self.ubicacion = ubicacion
+        self.exp = exp
+
 class If(Instruccion) : 
     def __init__(self, exp, instrucciones = []) :
         self.exp = exp
@@ -130,4 +137,10 @@ class Remove(Instruccion):
 class Contains(Instruccion):
     def __init__(self,id, dato):
         self.id = id
+        self.dato = dato
+
+class Insert(Instruccion):
+    def __init__(self,id, ubicacion, dato):
+        self.id = id
+        self.ubicacion = ubicacion
         self.dato = dato

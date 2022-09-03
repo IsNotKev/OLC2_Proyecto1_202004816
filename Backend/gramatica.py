@@ -39,7 +39,8 @@ reservadas = {
     'remove'    : 'REMOVE',
     'contains'  : 'CONTAINS',
     'insert'    : 'INSERT',
-    'capacity'  : 'CAPACITY'
+    'with_capacity' : 'WCAPACITY',
+    'capacity'  : 'CAPACITY',
 }
 
 tokens  = [
@@ -199,6 +200,7 @@ def p_instruccion(t) :
     '''instruccion      :   imprimir_instr PTCOMA
                         |   definicion_instr PTCOMA
                         |   asignacion_instr PTCOMA
+                        |   asignacion_vec PTCOMA
                         |   if_instr
                         |   while_instr
                         |   loop_instr
@@ -210,8 +212,17 @@ def p_instruccion(t) :
                         |   return_instr PTCOMA
                         |   for_instr
                         |   push_instr PTCOMA
-                        |   remove_instr PTCOMA'''
+                        |   remove_instr PTCOMA
+                        |   insert_instr PTCOMA'''
     t[0] = t[1]
+
+def p_insert_instr(t):
+    'insert_instr     :   ID PUNTO INSERT PARIZQ expresion COMA expresion PARDER'
+    t[0] = Insert(t[1],t[5],t[7])
+
+def p_asignacion_vec(t):
+    'asignacion_vec     :   ID lista_corch IGUAL expresion'
+    t[0] = AsignacionVec(t[1],t[2],t[4])
 
 def p_remove_instr(t):
     'remove_instr       :   ID PUNTO REMOVE PARIZQ expresion PARDER'
@@ -278,6 +289,7 @@ def p_instrsmatch_default(t):
     'instrmatch         :  DEFAULT FLECHAMATCH statement'
     t[0] = OpcionMatch(TIPO_DATO.VOID,t[3])
 
+# ACTUALIZAR INSTRUCCIONES :v
 def p_instrdmatch(t):
     '''instruccion_match    :   imprimir_instr
                             |   definicion_instr
@@ -311,6 +323,15 @@ def p_lllamadoparams(t):
     t[1].append(t[3])
     t[0] = t[1]
 
+def p_lllamadoparamsY(t):
+    'llparams           :   llparams COMA I MUT ID'
+    t[1].append(ParI(ExpresionIdentificador(t[5])))
+    t[0] = t[1]
+
+def p_llamadoparamsY(t):
+    'llparams           :   I MUT ID'
+    t[0] = [ParI(ExpresionIdentificador(t[3]))]
+
 def p_llamadoparams(t):
     'llparams           :   expresion'
     t[0] = [t[1]]
@@ -343,6 +364,10 @@ def p_fparams(t):
 def p_fparametro(t):
     'fparametro     :       ID DOSPUNTOS tipos'
     t[0] = Parametro(t[1],t[3],TIPO_VAR.INMUTABLE)
+
+def p_fparametroI(t):
+    'fparametro     :       ID DOSPUNTOS I MUT tipos'
+    t[0] = Parametro(t[1],t[5],TIPO_VAR.MUTABLE)
 
 def p_fparametro_mut(t):
     'fparametro     :       MUT ID DOSPUNTOS tipos'
@@ -420,16 +445,17 @@ def p_tiposusize(t):
     '''tipos            :   USIZE'''
     t[0] = TIPO_DATO.USIZE
 
-def p_tipoVecInt(t):
-    'tipos              :   VVEC MENQUE tipos MAYQUE'
-    
-    if t[3] == TIPO_DATO.INT64: t[0] = TIPO_DATO.VECINT64
-    elif t[3] == TIPO_DATO.FLOAT64: t[0] = TIPO_DATO.VECFLOAT64
-    elif t[3] == TIPO_DATO.BOOLEAN: t[0] = TIPO_DATO.VECBOOLEAN
-    elif t[3] == TIPO_DATO.CHAR: t[0] = TIPO_DATO.VECCHAR
-    elif t[3] == TIPO_DATO.STRING: t[0] = TIPO_DATO.VECSTRING
-    elif t[3] == TIPO_DATO.ISTRING: t[0] = TIPO_DATO.VECISTRING
-    elif t[3] == TIPO_DATO.USIZE: t[0] = TIPO_DATO.VECINT64
+def p_tipoVec(t):
+    'tipos              :   VVEC MENQUE tipos MAYQUE'  
+    t[0] = TIPO_DATO.VOID
+
+def p_tipo_array(t):
+    'tipos         :   CORCHIZQ tipos PTCOMA expresion CORCHDER'
+    t[0] = TIPO_DATO.VOID
+
+def p_tipo_arrayun(t):
+    'tipos         :   CORCHIZQ tipos CORCHDER'
+    t[0] = TIPO_DATO.VOID
 
 def p_instruccion_imprimir(t) :
     '''imprimir_instr     : PRINTLN ADMIR PARIZQ CADENA PARDER'''
@@ -551,8 +577,25 @@ def p_expresion_init(t):
                     |   expresion_vectorial
                     |   expresion_array
                     |   expresion_loop
-                    |   llamado_instr'''
+                    |   llamado_instr
+                    |   remove_instr'''
     t[0] = t[1]
+
+def p_expresion_len(t):
+    '''expresion      :   expresion PUNTO LEN PARIZQ PARDER'''
+    t[0] = Len(t[1])
+
+def p_expresion_len_id(t):
+    '''expresion      :   ID PUNTO LEN PARIZQ PARDER'''
+    t[0] = Len(ExpresionIdentificador(t[1]))
+
+def p_exp_contains(t):
+    'expresion      :   ID PUNTO CONTAINS PARIZQ I expresion PARDER'
+    t[0] = Contains(t[1],t[6])
+
+def p_exp_capacity(t):
+    'expresion      :   ID PUNTO CAPACITY PARIZQ PARDER'
+    t[0] = Capacity(t[1])
 
 def p_expresion_loop(t):
     'expresion_loop     :   LOOP statement'
@@ -612,9 +655,9 @@ def p_expresion_vector_vacio(t):
     'expresion_vectorial      :   VVEC DOSPUNTOS DOSPUNTOS NEW PARIZQ PARDER'
     t[0] = ExpresionVec([],TIPO_DATO.VOID)
 
-def p_expresion_len(t):
-    'expresion                  :   expresion PUNTO LEN PARIZQ PARDER'
-    t[0] = Len(t[1])
+def p_expresion_vec_wcapacity(t):
+    'expresion_vectorial      :   VVEC DOSPUNTOS DOSPUNTOS WCAPACITY PARIZQ expresion PARDER'
+    t[0] = ExpresionVec([],TIPO_DATO.VOID,t[6])
 
 def p_expresion_vector(t):
     '''expresion_vectorial      :   VEC ADMIR CORCHIZQ lista_vectorial CORCHDER

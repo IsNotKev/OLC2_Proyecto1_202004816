@@ -1,4 +1,6 @@
 from enum import Enum
+from operator import truediv
+from pydoc import resolve
 
 class TIPO_DATO(Enum) :
     INT64 = 1
@@ -7,14 +9,14 @@ class TIPO_DATO(Enum) :
     STRING = 4
     ISTRING = 5
     CHAR = 6
-    VOID = 7
-    VECINT64 = 9
-    VECFLOAT64 = 10
-    VECBOOLEAN = 11
-    VECSTRING = 12
-    VECISTRING = 13
-    VECCHAR = 14
-    USIZE = 15
+    USIZE = 7
+    VOID = 8
+
+class TIPO_SIMBOLO(Enum):
+    VAR = 1
+    ARRAY = 2
+    VECTOR = 3
+    STRUCT = 4
 
 class TIPO_VAR(Enum):
     MUTABLE = 1
@@ -53,7 +55,7 @@ class TablaDeSimbolos() :
                 elif simbolo.tipo_dato == TIPO_DATO.USIZE and simbolo.valor.tipo == TIPO_DATO.INT64 and simbolo.valor.val >= 0:
                     self.simbolos[simbolo.id] = simbolo
                 else:
-                    print('Error al asignar')
+                    print('Error al asignar',simbolo.id, simbolo.valor.val)
             else:
                 simbolo.tipo_dato = simbolo.valor.tipo
                 self.simbolos[simbolo.id] = simbolo
@@ -92,6 +94,72 @@ class TablaDeSimbolos() :
         else:
             return vec
 
+    def capacity(self, id):
+        simboloAux = self.obtenerSimbolo(id)
+        if simboloAux.capacity != None:
+            return simboloAux.capacity
+        else:
+            print('No tiene capacity')
+
+    def push(self,id, dato):
+        simboloAux = self.obtenerSimbolo(id)
+        if type(simboloAux.valor.val) == type([]):
+            simboloAux.valor.val.append(dato)
+            self.simbolos[simboloAux.id] = simboloAux
+        else:
+            print('No es Vector para hacerle push')
+    
+    def remove(self,id, ubicacion):
+        simboloAux = self.obtenerSimbolo(id)
+        if type(simboloAux.valor.val) == type([]):
+            aux = simboloAux.valor.val[ubicacion]
+            simboloAux.valor.val.pop(ubicacion)
+            self.simbolos[simboloAux.id] = simboloAux
+            return aux
+        else:
+            print('No es Vector para hacerle remove')
+
+    def insert(self,id,ubicacion,dato):
+        simboloAux = self.obtenerSimbolo(id)
+        if type(simboloAux.valor.val) == type([]):
+            simboloAux.valor.val.insert(ubicacion,dato)
+            self.simbolos[simboloAux.id] = simboloAux
+        else:
+            print('No es Vector para hacerle insert')
+
+    def contains(self,id,dato):
+        simboloAux = self.obtenerSimbolo(id)
+        if type(simboloAux.valor.val) == type([]):
+            for i in simboloAux.valor.val:
+                if i.tipo == dato.tipo and i.val == dato.val:
+                    return True
+            return False
+        else:
+            print('No es Vector para hacerle push')
+
+    def actualizarVec(self,id,ubicacion,nval):
+        if not id in self.simbolos :
+            print('Error: variable ', id, ' no definida.')
+        else :
+            simboloAux = self.obtenerSimbolo(id)
+            if len(ubicacion) > 1:
+                u = ubicacion[0]
+                simboloAux.valor.val[u] = self.resolv(simboloAux.valor.val[u], ubicacion, nval)
+                self.simbolos[simboloAux.id] = simboloAux
+            else:
+                simboloAux.valor.val[ubicacion[0]]  = nval
+                self.simbolos[simboloAux.id] = simboloAux
+                     
+    
+    def resolv(self, val, ubicacion, nval):
+        if len(ubicacion) > 1:
+            ubicacion.pop(0)
+            u = ubicacion[0]
+            val.val[u] = self.resolv(val.val[u],ubicacion,nval)
+            return val
+        else:
+            return nval
+    
 
     def actualizarSimbolo(self, id, nval) :
         if not id in self.simbolos :
@@ -106,6 +174,6 @@ class TablaDeSimbolos() :
                     simboloAux.valor = nval
                     self.simbolos[simboloAux.id] = simboloAux
                 else:
-                    print('Error al asignar')
+                    print('Error al asignar',id, nval.val)
             else:
                 print('No se puede actualizar una variable Inmutable')
