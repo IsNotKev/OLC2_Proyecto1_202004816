@@ -80,7 +80,21 @@ class TablaDeSimbolos() :
             simbolo = self.simbolos[id]
             for dat in simbolo.valor.val:
                 if dat.id == lid[0]:
+                    if len(lid) > 1 :
+                        return self.structDataRecursivo(dat.dato,lid)
+                    else:
+                        return dat.dato
+
+    def structDataRecursivo(self, atributos, lid):
+        lid.pop(0)
+        for dat in atributos.val:
+            if dat.id == lid[0]:
+                if len(lid) > 1 :
+                    return self.structDataRecursivo(dat.dato,lid)
+                else:
                     return dat.dato
+
+
 
     def agregarStruct(self, struct):
         self.structs[struct.id] = struct

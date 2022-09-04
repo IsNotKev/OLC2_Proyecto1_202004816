@@ -219,6 +219,9 @@ def p_instruccion(t) :
                         |   crear_struct'''
     t[0] = t[1]
 
+def p_asignacion_instr(t) :
+    'asignacion_instr   : ID IGUAL expresion'
+    t[0] = Asignacion(t[1], t[3])
 
 def p_crear_struct(t):
     'crear_struct       :   STRUCT ID LLAVIZQ struct_data LLAVDER'
@@ -434,10 +437,6 @@ def p_statement_vacio(t):
     'statement          :   LLAVIZQ LLAVDER'
     t[0] = []
 
-def p_asignacion_instr(t) :
-    'asignacion_instr   : ID IGUAL expresion'
-    t[0] = Asignacion(t[1], t[3])
-
 def p_instruccion_definicionMT(t):
     '''definicion_instr :   LET MUT ID DOSPUNTOS tipos IGUAL expresion'''
     t[0] = Definicion(t[3],TIPO_VAR.MUTABLE, t[5],t[7])
@@ -484,7 +483,7 @@ def p_tiposusize(t):
 
 def p_tiposStruct(t):
     'tipos            :   ID'
-    t[0] = TIPO_DATO.VOID
+    t[0] = t[1]
 
 def p_tipoVec(t):
     'tipos              :   VVEC MENQUE tipos MAYQUE'  
@@ -708,6 +707,11 @@ def p_to_string(t):
     '''expresion  :   expresion PUNTO TOSTRING PARIZQ PARDER
                     | expresion PUNTO TOOWNED PARIZQ PARDER'''
     t[0] = ToString(t[1])
+
+def p_to_stringId(t):
+    '''expresion  :   ID PUNTO TOSTRING PARIZQ PARDER
+                    | ID PUNTO TOOWNED PARIZQ PARDER'''
+    t[0] = ToString(ExpresionIdentificador(t[1]))
 
 def p_abs(t):
     'expresion  :   expresion PUNTO ABS PARIZQ PARDER'

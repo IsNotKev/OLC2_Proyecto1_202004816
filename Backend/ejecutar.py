@@ -139,11 +139,11 @@ def procesar_match(instr,ts):
 def procesar_llamado(instr,ts):
     funcion = ts.obtenerFuncion(instr.id)
 
-    ts_local = TS.TablaDeSimbolos(simbolos={},funciones=ts.funciones)
+    ts_local = TS.TablaDeSimbolos(simbolos={},funciones=ts.funciones, structs=ts.structs)
 
     if len(instr.parametros) == len(funcion.parametros):
         imut = []
-        for num in range(0,len(funcion.parametros),1):
+        for num in range(len(funcion.parametros)):
             if isinstance(instr.parametros[num],ParI):
                 val = resolver_expresion(instr.parametros[num].par, ts)
                 imut.append([instr.parametros[num].par.id,funcion.parametros[num].id])
@@ -447,12 +447,11 @@ def resolver_expresion(exp, ts):
         if refStruct != None:
             for i in range(len(exp.val)):
                 if refStruct.parametros[i].id == exp.val[i].id:
-                    val = resolver_expresion(exp.val[i].dato,ts)
-                    
+                    val = resolver_expresion(exp.val[i].dato,ts)                 
                     if val.tipo == refStruct.parametros[i].tipo:
                         exp.val[i].dato = val
                     else:
-                       print('Tipo de parametro en struct incorrecto')
+                       print('Tipo de parametro en struct incorrecto', val.tipo, refStruct.parametros[i].tipo)
                        return
                 else:
                     print('Parametro en struct incorrecto')     
