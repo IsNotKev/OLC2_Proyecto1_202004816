@@ -38,6 +38,13 @@ class AsignacionVec(Instruccion) :
         self.ubicacion = ubicacion
         self.exp = exp
 
+class AsignacionStruct(Instruccion) :
+
+    def __init__(self, id, lid,exp) :
+        self.id = id
+        self.lid = lid
+        self.exp = exp
+
 class If(Instruccion) : 
     def __init__(self, exp, instrucciones = []) :
         self.exp = exp
@@ -144,3 +151,13 @@ class Insert(Instruccion):
         self.id = id
         self.ubicacion = ubicacion
         self.dato = dato
+
+class CrearStruct(Instruccion):
+    def __init__(self,id ,parametros):
+        self.id = id
+        self.parametros = parametros
+
+class StructParametro(Instruccion):
+    def __init__(self,id ,tipo):
+        self.id = id
+        self.tipo = tipo

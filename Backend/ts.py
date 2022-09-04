@@ -38,14 +38,52 @@ class Funcion():
         self.parametros = parametros
         self.instrucciones = instrucciones
         self.tipo_dato = tipo_dato
-        
+
+class Struct():
+    def __init__(self,id , parametros):
+        self.id = id
+        self.parametros = parametros
 
 class TablaDeSimbolos() :
     'Esta clase representa la tabla de simbolos'
 
-    def __init__(self, simbolos = {}, funciones = {}) :
+    def __init__(self, simbolos = {}, funciones = {}, structs = {}) :
         self.simbolos = simbolos
         self.funciones = funciones
+        self.structs = structs
+
+    def obtenerStruct(self,id):
+        if not id in self.structs :
+            print('Error: struct ', id, ' no definida.')
+            return None
+        else:
+            return self.structs[id]
+    
+    def asignarStructData(self, id, lid, nval):
+        if not id in self.simbolos :
+            print('Error: variable ', id, ' no definida.')
+            return None
+        else:
+            simboloAux = self.simbolos[id]
+            for dat in simboloAux.valor.val:
+                if dat.id == lid[0] and dat.dato.tipo == nval.tipo:
+                    dat.dato = nval
+                    self.simbolos[simboloAux.id] = simboloAux
+                    return
+
+
+    def obtenerStructData(self,id, lid):
+        if not id in self.simbolos :
+            print('Error: variable ', id, ' no definida.')
+            return None
+        else:
+            simbolo = self.simbolos[id]
+            for dat in simbolo.valor.val:
+                if dat.id == lid[0]:
+                    return dat.dato
+
+    def agregarStruct(self, struct):
+        self.structs[struct.id] = struct
 
     def agregarSimbolo(self, simbolo) :
         if simbolo.valor != None:

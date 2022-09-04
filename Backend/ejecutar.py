@@ -13,6 +13,7 @@ def guardarFunciones(instrucciones, ts):
     if instrucciones != None:
         for instr in instrucciones:
             if isinstance(instr,Funcion): guardar_funcion(instr,ts) 
+            elif isinstance(instr, CrearStruct): guardar_struct(instr,ts)
 
 def procesar_instrucciones(instrucciones, ts) :
     ## lista de instrucciones recolectadas
@@ -23,6 +24,10 @@ def procesar_instrucciones(instrucciones, ts) :
             elif isinstance(instr,Definicion): procesar_definicion(instr,ts)        
             elif isinstance(instr,Asignacion): procesar_asignacion(instr,ts) 
             elif isinstance(instr,Funcion): guardar_funcion(instr,ts)
+            elif isinstance(instr, CrearStruct): guardar_struct(instr,ts)
+            elif isinstance(instr, AsignacionStruct): 
+                nval = resolver_expresion(instr.exp,ts)
+                ts.asignarStructData(instr.id,instr.lid,nval)
             elif isinstance(instr,Push): 
                 dd = resolver_expresion(instr.dato,ts)
                 ts.push(instr.id,dd)
@@ -45,7 +50,6 @@ def procesar_instrucciones(instrucciones, ts) :
                     else:
                         print('Error: Necesita un entero positivo')
                 ts.actualizarVec(instr.id,dd,dat)  
-
             elif isinstance(instr, If):                                                             
                 res = procesar_if(instr,ts)
                 consola += res['consola']
@@ -122,15 +126,15 @@ def procesar_match(instr,ts):
         print(opcion.coincidencias)
         if opcion.coincidencias == TIPO_DATO.VOID:
             res = procesar_instrucciones(opcion.instrucciones,ts)
-            return {'consola': res['consola'][13:], 'break':res['break'], 'continue':res['continue']}
+            return {'consola': res['consola'][13:], 'break':res['break'], 'continue':res['continue'], 'return':res['return']}
         else:
             for coincidencia in opcion.coincidencias:
                 cc = resolver_expresion(coincidencia,ts)
                 if val.tipo == cc.tipo and val.val == cc.val:
                     res = procesar_instrucciones(opcion.instrucciones,ts)
-                    return {'consola': res['consola'][13:], 'break':res['break'], 'continue':res['continue']}
+                    return {'consola': res['consola'][13:], 'break':res['break'], 'continue':res['continue'], 'return':res['return']}
     
-    return {'consola': '', 'break':Break(False), 'continue' : Continue(False)}
+    return {'consola': '', 'break':Break(False), 'continue' : Continue(False) , 'return':Return(False)}
 
 def procesar_llamado(instr,ts):
     funcion = ts.obtenerFuncion(instr.id)
@@ -160,6 +164,10 @@ def procesar_llamado(instr,ts):
 
 def guardar_funcion(instr,ts):
     ts.agregarFuncion(instr)
+
+def guardar_struct(instr,ts):
+    nuevoS = TS.Struct(instr.id,instr.parametros)
+    ts.agregarStruct(nuevoS)
 
 def procesar_while(instr, ts):
     val = resolver_expresion(instr.exp, ts)
@@ -296,6 +304,7 @@ def resolver_expresion(exp, ts):
         elif exp1.tipo == TIPO_DATO.STRING and exp2.tipo == TIPO_DATO.ISTRING:
             return ExpresionDobleComilla(exp1.val + exp2.val,TIPO_DATO.STRING)
         else:
+            print(exp1.tipo,exp2.tipo)
             return ExpresionDobleComilla("Error -> No se puede operar", TIPO_DATO.STRING)
         
     elif isinstance(exp, ExpresionPotencia) :
@@ -433,9 +442,30 @@ def resolver_expresion(exp, ts):
         return ExpresionLogicaTF(ts.contains(exp.id,dd),TIPO_DATO.BOOLEAN )
     elif isinstance(exp,Capacity):
         return ExpresionNumero(ts.capacity(exp.id),TIPO_DATO.INT64 )
+    elif isinstance(exp,ExpresionStruct):
+        refStruct = ts.obtenerStruct(exp.tipo)
+        if refStruct != None:
+            for i in range(len(exp.val)):
+                if refStruct.parametros[i].id == exp.val[i].id:
+                    val = resolver_expresion(exp.val[i].dato,ts)
+                    
+                    if val.tipo == refStruct.parametros[i].tipo:
+                        exp.val[i].dato = val
+                    else:
+                       print('Tipo de parametro en struct incorrecto')
+                       return
+                else:
+                    print('Parametro en struct incorrecto')     
+                    return     
+            return exp
+        else:
+            print('Ese Struct no existe')
+    elif isinstance(exp, AccesoStruc):
+        return ts.obtenerStructData(exp.id,exp.parametro)
     else :
-        print('Error: Expresión no válida')
-        print(exp)
+        if exp != None:
+            print('Error: Expresión no válida')
+            print(exp)
 
 def casteo(exp,ts):
     val = resolver_expresion(exp.dato,ts) 
@@ -451,9 +481,9 @@ def casteo(exp,ts):
     
     return ExpresionDobleComilla("Error -> No se puede realizar casteo", TIPO_DATO.STRING)
 
-def procesar_definicion(instr, ts):   
+def procesar_definicion(instr, ts): 
+     
     val = resolver_expresion(instr.dato, ts)  
-
     #if val.tipo == TIPO_DATO.VOID and type(val.val) == type([]):
 #
     #    if comprobar_vector(val.val,ts,TIPO_DATO.INT64):
@@ -470,8 +500,7 @@ def procesar_definicion(instr, ts):
     #        val.tipo = TIPO_DATO.VECSTRING
     #    else:
     #        print('Vector Incorrecto')
-
-    if type(val.val) == type([]):
+    if type(val.val) == type([]) and type(val.tipo) != type('string'):
         cc = None
         if val.capacity != None:
             cc = resolver_expresion(val.capacity,ts).val

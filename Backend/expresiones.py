@@ -195,4 +195,23 @@ class ParI:
     def __init__(self,par):
         self.par = par
 
+
+class ExpresionS:
+    'Para Struct'
+
+class ExpresionStruct:
+    def __init__(self,tipo,val):
+        self.tipo = tipo
+        self.val = val
+
+class StructAtributo:
+    def __init__(self,id, dato):
+       self.id = id
+       self.dato = dato
+
+class AccesoStruc:
+    def __init__(self,id, parametro):
+       self.id = id
+       self.parametro = parametro
+
           

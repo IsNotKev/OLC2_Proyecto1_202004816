@@ -41,6 +41,7 @@ reservadas = {
     'insert'    : 'INSERT',
     'with_capacity' : 'WCAPACITY',
     'capacity'  : 'CAPACITY',
+    'struct'    : 'STRUCT'
 }
 
 tokens  = [
@@ -201,6 +202,7 @@ def p_instruccion(t) :
                         |   definicion_instr PTCOMA
                         |   asignacion_instr PTCOMA
                         |   asignacion_vec PTCOMA
+                        |   asignacion_struct PTCOMA
                         |   if_instr
                         |   while_instr
                         |   loop_instr
@@ -213,8 +215,23 @@ def p_instruccion(t) :
                         |   for_instr
                         |   push_instr PTCOMA
                         |   remove_instr PTCOMA
-                        |   insert_instr PTCOMA'''
+                        |   insert_instr PTCOMA
+                        |   crear_struct'''
     t[0] = t[1]
+
+
+def p_crear_struct(t):
+    'crear_struct       :   STRUCT ID LLAVIZQ struct_data LLAVDER'
+    t[0] = CrearStruct(t[2],t[4])
+
+def p_struct_data(t):
+    'struct_data        :   struct_data COMA ID DOSPUNTOS tipos'
+    t[1].append(StructParametro(t[3],t[5]))
+    t[0] = t[1]
+
+def p_struct_dataU(t):
+    'struct_data        :   ID DOSPUNTOS tipos'
+    t[0] = [StructParametro(t[1],t[3])]
 
 def p_insert_instr(t):
     'insert_instr     :   ID PUNTO INSERT PARIZQ expresion COMA expresion PARDER'
@@ -223,6 +240,10 @@ def p_insert_instr(t):
 def p_asignacion_vec(t):
     'asignacion_vec     :   ID lista_corch IGUAL expresion'
     t[0] = AsignacionVec(t[1],t[2],t[4])
+
+def p_asignacion_struct(t):
+    'asignacion_struct     :   ID lids IGUAL expresion'
+    t[0] = AsignacionStruct(t[1],t[2],t[4])
 
 def p_remove_instr(t):
     'remove_instr       :   ID PUNTO REMOVE PARIZQ expresion PARDER'
@@ -239,6 +260,10 @@ def p_return_instr(t):
 def p_for_instr(t):
     'for_instr          :   FOR ID IN expresion statement'
     t[0] = ForIn(t[2],t[4],t[5])
+
+def p_for_instrid(t):
+    'for_instr          :   FOR ID IN ID statement'
+    t[0] = ForIn(t[2],ExpresionIdentificador(t[4]),t[5])
 
 def p_continue(t):
     'continue_instr     :   CONTINUE'
@@ -260,9 +285,17 @@ def p_match_instr(t):
     'match_instr        : MATCH expresion LLAVIZQ lismatch LLAVDER'
     t[0] = Match(t[2],t[4])
 
+def p_match_instrid(t):
+    'match_instr        : MATCH ID LLAVIZQ lismatch LLAVDER'
+    t[0] = Match(ExpresionIdentificador(t[2]),t[4])
+
 def p_match_instr_v(t):
     'match_instr        : MATCH expresion LLAVIZQ LLAVDER'
     t[0] = Match(t[2],[])
+
+def p_match_instr_vid(t):
+    'match_instr        : MATCH ID LLAVIZQ LLAVDER'
+    t[0] = Match(ExpresionIdentificador(t[2]),[])
 
 def p_llismatch(t):
     'lismatch          :   lismatch instrmatch'
@@ -300,6 +333,10 @@ def p_instrdmatch(t):
                             |   llamado_instr
                             |   match_instr'''
     t[0] = t[1]
+
+def p_expresion_id(t):
+    'expresion     : ID'
+    t[0] = ExpresionIdentificador(t[1])
 
 def p_llistcoincidencia(t):
     'listcoincidencia   :   listcoincidencia O expresion'
@@ -445,6 +482,10 @@ def p_tiposusize(t):
     '''tipos            :   USIZE'''
     t[0] = TIPO_DATO.USIZE
 
+def p_tiposStruct(t):
+    'tipos            :   ID'
+    t[0] = TIPO_DATO.VOID
+
 def p_tipoVec(t):
     'tipos              :   VVEC MENQUE tipos MAYQUE'  
     t[0] = TIPO_DATO.VOID
@@ -530,11 +571,7 @@ def p_expresion_rango(t):
     'expresion      :   expresion PUNTO PUNTO expresion'
     t[0] = ExpresionRango(t[1],t[4])
 
-def p_expresion_id(t):
-    'expresion     : ID'
-    t[0] = ExpresionIdentificador(t[1])
-
-def p_expresion_id_vectorial(t):
+def p_expresion_idvectorial(t):
     'expresion      :   ID lista_corch'
     t[0] = ExpresionIdVectorial(t[1],t[2])
 
@@ -546,7 +583,6 @@ def p_llidarray(t):
 def p_lidarray(t):
     'lista_corch    :   CORCHIZQ expresion CORCHDER'
     t[0] = [t[2]]
-
 
 def p_expresion_relacional(t):
     '''expresion     :      expresion MAYQUE expresion
@@ -581,12 +617,38 @@ def p_expresion_init(t):
                     |   remove_instr'''
     t[0] = t[1]
 
+def p_expresion_struct(t):
+    'expresion      :   ID LLAVIZQ struct_dicc LLAVDER'
+    t[0] = ExpresionStruct(t[1],t[3])
+
+def p_struct_dicc(t):
+    'struct_dicc    :   struct_dicc COMA ID DOSPUNTOS expresion'
+    t[1].append(StructAtributo(t[3],t[5]))
+    t[0] = t[1]
+
+def p_struct_diccU(t):
+    'struct_dicc    :   ID DOSPUNTOS expresion'
+    t[0] = [StructAtributo(t[1],t[3])]
+
+def p_expresion_accesoStruct(t):
+    'expresion      :   ID lids'
+    t[0] = AccesoStruc(t[1],t[2])
+
+def p_expresion_llids(t):
+    'lids       :  lids PUNTO ID'
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_expresion_lids(t):
+    'lids       :   PUNTO ID'
+    t[0] = [t[2]]
+
 def p_expresion_len(t):
-    '''expresion      :   expresion PUNTO LEN PARIZQ PARDER'''
+    'expresion      :   expresion PUNTO LEN PARIZQ PARDER'
     t[0] = Len(t[1])
 
-def p_expresion_len_id(t):
-    '''expresion      :   ID PUNTO LEN PARIZQ PARDER'''
+def p_expresion_lenid(t):
+    'expresion      :   ID PUNTO LEN PARIZQ PARDER'
     t[0] = Len(ExpresionIdentificador(t[1]))
 
 def p_exp_contains(t):
@@ -604,6 +666,10 @@ def p_expresion_loop(t):
 def p_expresion_match(t):
     'expresion_match    :   MATCH expresion LLAVIZQ lmatchexp LLAVDER'
     t[0] = ExpresionMatch(t[2], t[4])
+
+def p_expresion_matchid(t):
+    'expresion_match    :   MATCH ID LLAVIZQ lmatchexp LLAVDER'
+    t[0] = ExpresionMatch(ExpresionIdentificador(t[2]), t[4])
 
 def p_llmatchexp(t):
     'lmatchexp          :   lmatchexp matchexp'
@@ -626,6 +692,10 @@ def p_expresion_if(t):
     'expresion_if      :       IF expresion statement_expresion ELSE statement_expresion'
     t[0] = ExpresionIf(t[2],t[3],t[5])
 
+def p_expresion_if_elifid(t):
+    'expresion_if      :       IF ID statement_expresion ELSE expresion_if'
+    t[0] = ExpresionIf(ExpresionIdentificador(t[2]),t[3],t[5])
+
 def p_expresion_if_elif(t):
     'expresion_if      :       IF expresion statement_expresion ELSE expresion_if'
     t[0] = ExpresionIf(t[2],t[3],t[5])
@@ -643,9 +713,17 @@ def p_abs(t):
     'expresion  :   expresion PUNTO ABS PARIZQ PARDER'
     t[0] = Abs(t[1])
 
+def p_absid(t):
+    'expresion  :   ID PUNTO ABS PARIZQ PARDER'
+    t[0] = Abs(ExpresionIdentificador(t[1]))
+
 def p_sqrt(t):
     'expresion  :   expresion PUNTO SQRT PARIZQ PARDER'
     t[0] = Sqrt(t[1])
+
+def p_sqrtid(t):
+    'expresion  :   ID PUNTO SQRT PARIZQ PARDER'
+    t[0] = Sqrt(ExpresionIdentificador(t[1]))
 
 def p_casteo(t):
     'expresion  :   expresion AS tipos'
