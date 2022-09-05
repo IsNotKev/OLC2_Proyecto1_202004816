@@ -13,10 +13,15 @@ function App() {
     editorRef.current = editor;
   }
 
+  function mostrarDatos(){
+    alert("PROYECTO 1 \nOrganización de Lenguajes y Compiladores 2 \nKevin Steve Martinez Lemus - 202004816")
+  }
+
   function ejecutar() {
     var obj = { 'codigo': editorRef.current.getValue() }
 
-    fetch(`http://localhost:5000/ejecutar`, {
+    if (editorRef.current.getValue() != ""){
+      fetch(`http://localhost:5000/ejecutar`, {
       method: 'POST',
       body: JSON.stringify(obj),
       headers: {
@@ -32,6 +37,10 @@ function App() {
       .then(response => {
         document.getElementById('consola').textContent = response.Mensaje;
       })
+    }else{
+      alert("Escriba código para ejecutar.")
+    }
+    
   }
 
   return (
@@ -50,18 +59,18 @@ function App() {
                   <a class="nav-link active" aria-current="page" onClick={ejecutar} style={{ cursor: 'pointer' }}>Ejecutar</a>
                 </li>
                 <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <a class="nav-link dropdown-toggle" style={{ cursor: 'pointer' }} role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     Reportes
                   </a>
                   <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#">Reporte de tabla de símbolos</a></li>
-                    <li><a class="dropdown-item" href="#">Reporte de errores</a></li>
-                    <li><a class="dropdown-item" href="#">Reporte de base de datos existente</a></li>
-                    <li><a class="dropdown-item" href="#">Reporte tablas de base de datos</a></li>
+                    <li><a class="dropdown-item" style={{ cursor: 'pointer' }}>Reporte de tabla de símbolos</a></li>
+                    <li><a class="dropdown-item" style={{ cursor: 'pointer' }}>Reporte de errores</a></li>
+                    <li><a class="dropdown-item" style={{ cursor: 'pointer' }}>Reporte de base de datos existente</a></li>
+                    <li><a class="dropdown-item" style={{ cursor: 'pointer' }}>Reporte tablas de base de datos</a></li>
                   </ul>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="#">Acerca De</a>
+                  <a class="nav-link" style={{ cursor: 'pointer' }} onClick={mostrarDatos}>Acerca De</a>
                 </li>
               </ul>
             </div>
@@ -82,7 +91,7 @@ function App() {
               }
             }}
           />
-          <textarea disabled style={{ width: '60vh', height: '75vh', background: 'black', color: 'white', fontSize: '13px' }} id="consola"></textarea>
+          <textarea disabled style={{ width: '70vh', height: '75vh', background: 'black', color: 'white', fontSize: '13px' }} id="consola"></textarea>
         </div>
 
       </header>

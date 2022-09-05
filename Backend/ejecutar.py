@@ -123,7 +123,6 @@ def procesar_loop(instr,ts):
 def procesar_match(instr,ts):
     val = resolver_expresion(instr.exp,ts)
     for opcion in instr.opciones:
-        print(opcion.coincidencias)
         if opcion.coincidencias == TIPO_DATO.VOID:
             res = procesar_instrucciones(opcion.instrucciones,ts)
             return {'consola': res['consola'][13:], 'break':res['break'], 'continue':res['continue'], 'return':res['return']}
@@ -218,7 +217,10 @@ def procesar_if(instr, ts):
 
 def procesar_imprimir(instr, ts) :
     if(len(instr.parametros)==0):
-        return '\n> ' + resolver_expresion(instr.cad, ts).val
+        cadena = resolver_expresion(instr.cad, ts).val
+        if type(cadena) == type('string'):
+            cadena = cadena.replace('\\n','\n')
+        return '\n> ' + cadena
     else:
         cadena = resolver_expresion(instr.cad, ts).val
         cadena = cadena.replace('\\n','\n')
